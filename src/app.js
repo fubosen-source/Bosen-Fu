@@ -15,6 +15,22 @@ const store = {
 };
 
 let settings = store.get("settings", { theme: "papel", voiceURI: "", rate: 0.9 });
+if (!settings.subLang) settings.subLang = "en";   // 字幕语言: en | zh | both
+
+// 单词字幕(释义)按设置语言显示
+function sub(w) {
+  const en = w.en || w.zh || "";
+  const zh = w.zh || w.en || "";
+  if (settings.subLang === "en") return en;
+  if (settings.subLang === "zh") return zh;
+  return en === zh ? en : `${zh} · ${en}`;
+}
+// 字幕的"另一种语言"(用于闪卡背面的小字)
+function subAlt(w) {
+  if (settings.subLang === "en") return w.zh || "";
+  if (settings.subLang === "zh") return w.en || "";
+  return "";
+}
 let progress = store.get("progress", {});   // es -> {lvl, due, seen, ok, bad}
 let customUnits = store.get("custom", []);  // [{id,title,emoji,color,words:[{es,zh,en,emoji}]}]
 
@@ -210,7 +226,7 @@ function renderUnit(unit) {
     const row = el("div", "word-row");
     row.innerHTML =
       `<span class="w-emoji">${w.emoji}</span>
-       <div><div class="w-es">${esc(w.es)}</div><div class="w-zh">${esc(w.zh)}</div></div>
+       <div><div class="w-es">${esc(w.es)}</div><div class="w-zh">${esc(sub(w))}</div></div>
        <span class="w-level">${stars}</span>`;
     const play = el("button", "icon-btn", "🔊");
     play.title = "播放发音";
@@ -287,8 +303,8 @@ function startFlashcards(unit) {
        </div>
        <div class="card-face back">
          <div class="big-emoji">${w.emoji}</div>
-         <div class="zh-word">${esc(w.zh)}</div>
-         <div class="en-word">${esc(w.en)}</div>
+         <div class="zh-word">${esc(sub(w))}</div>
+         ${subAlt(w) ? `<div class="en-word">${esc(subAlt(w))}</div>` : ""}
          ${w.ex ? `<div class="example">“${esc(w.ex)}”<br>${esc(w.exZh || "")}</div>` : ""}
        </div>`;
     card.addEventListener("click", () => card.classList.toggle("flipped"));
@@ -316,10 +332,10 @@ function startMatching(unit) {
   const pairs = sample(unit.words, Math.min(6, unit.words.length));
   const { body } = activityShell("🔗 词义配对", back, 1);
 
-  body.append(el("p", "hint", "点击左右两栏，把西语词和中文意思配对"));
+  body.append(el("p", "hint", "点击左右两栏，把西语词和释义配对"));
   const grid = el("div", "match-grid");
   const left = shuffle(pairs).map(w => ({ w, side: "es", label: w.es }));
-  const right = shuffle(pairs).map(w => ({ w, side: "zh", label: w.zh }));
+  const right = shuffle(pairs).map(w => ({ w, side: "zh", label: sub(w) }));
 
   let selected = null;
   let matchedCount = 0;
@@ -418,7 +434,7 @@ function startPicture(unit) {
     let answered = false;
     for (const opt of options) {
       const b = el("button", "pick-option",
-        `${opt.emoji}<small>${esc(opt.zh)}</small>`);
+        `${opt.emoji}<small>${esc(sub(opt))}</small>`);
       b.addEventListener("click", () => {
         if (answered) return;
         if (opt === w) {
@@ -478,7 +494,7 @@ function startSpelling(unit) {
     const card = el("div", "write-card");
     card.innerHTML =
       `<div class="es-word">${esc(w.es)}</div>
-       <div class="zh-word">${esc(w.zh)}</div>
+       <div class="zh-word">${esc(sub(w))}</div>
        <div class="big-emoji">${w.emoji}</div>`;
     body.append(card);
 
@@ -766,7 +782,7 @@ function startTypeDrill(unit) {
     const prompt = el("div", "spell-prompt");
     prompt.innerHTML =
       `<div class="big-emoji">${w.emoji}</div>
-       <div class="zh-word">${esc(w.zh)}</div>
+       <div class="zh-word">${esc(sub(w))}</div>
        <div class="stage-pill">${st.label} · ${st.tip}</div>`;
     body.append(prompt);
 
@@ -933,7 +949,7 @@ function startSpeak(unit) {
     card.innerHTML =
       `<div class="big-emoji">${w.emoji}</div>
        <div class="es-word">${esc(w.es)}</div>
-       <div class="zh-word">${esc(w.zh)} · ${esc(w.en)}</div>`;
+       <div class="zh-word">${esc(sub(w))}</div>`;
 
     const row = el("div", "speak-row");
     const nativeBtn = el("button", "speak-btn", "🔊 原声发音");
@@ -1007,11 +1023,11 @@ function buildQuizQuestions(words, pool) {
     if (type === "es2zh") {
       qs.push({
         w, text: w.es, sub: "这个词是什么意思？", speakIt: true,
-        options: shuffle([w, ...others]).map(x => ({ label: x.zh, correct: x === w }))
+        options: shuffle([w, ...others]).map(x => ({ label: sub(x), correct: x === w }))
       });
     } else {
       qs.push({
-        w, text: w.zh, sub: "用西班牙语怎么说？", speakIt: false,
+        w, text: sub(w), sub: "用西班牙语怎么说？", speakIt: false,
         options: shuffle([w, ...others]).map(x => ({ label: x.es, correct: x === w }))
       });
     }
@@ -1126,7 +1142,7 @@ function renderReview() {
     const row = el("div", "word-row");
     row.innerHTML =
       `<span class="w-emoji">${w.emoji}</span>
-       <div><div class="w-es">${esc(w.es)}</div><div class="w-zh">${esc(w.zh)}</div></div>`;
+       <div><div class="w-es">${esc(w.es)}</div><div class="w-zh">${esc(sub(w))}</div></div>`;
     const play = el("button", "icon-btn", "🔊");
     play.addEventListener("click", () => speak(w.es));
     row.append(play);
@@ -1237,6 +1253,23 @@ function renderSettings() {
   }
   gTheme.append(row);
   main.append(gTheme);
+
+  // 字幕语言
+  const gSub = el("div", "settings-group", "<h3>💬 字幕语言（单词释义）</h3>");
+  const subSel = el("select");
+  for (const [val, label] of [["en", "English 英文"], ["zh", "中文"], ["both", "中英双语"]]) {
+    const opt = el("option", "", label);
+    opt.value = val;
+    if (settings.subLang === val) opt.selected = true;
+    subSel.append(opt);
+  }
+  subSel.addEventListener("change", () => {
+    settings.subLang = subSel.value;
+    store.set("settings", settings);
+    toast("字幕语言已切换");
+  });
+  gSub.append(subSel);
+  main.append(gSub);
 
   // 语音
   const gVoice = el("div", "settings-group", "<h3>🗣️ 西语发音</h3>");
