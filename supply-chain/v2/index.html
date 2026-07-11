@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOSEN 供应链控制台 V2</title>
+<style>
+  :root {
+    --paper: #f6f7f9;
+    --card: #ffffff;
+    --ink: #182338;
+    --ink-2: #5a6478;
+    --ink-3: #9aa2b1;
+    --line: #e3e6ec;
+    --line-2: #f0f2f5;
+    --accent: #0e7490;
+    --accent-deep: #155e75;
+    --accent-soft: #e8f4f7;
+    --accent-border: #b5dde7;
+    --head: #182338;
+    --head-ink: #c6cede;
+    --good: #15803d;
+    --warn: #b45309;   --warn-bg: #fef6ec;   --warn-line: #f0d9b5;
+    --danger: #b3261e; --danger-bg: #fdf1f0; --danger-line: #f2c7c4;
+    --shadow: 0 1px 2px rgba(24, 35, 56, .05), 0 2px 6px rgba(24, 35, 56, .06);
+    /* 状态色：始终与文字标签同时出现 */
+    --st-pending-bg: #eceff5; --st-pending-fg: #46536e;
+    --st-making-bg: #fdf2dc;  --st-making-fg: #8a5a0b;
+    --st-done-bg: #e5f3ea;    --st-done-fg: #1d6b3c;
+    --st-air-bg: #e3edfb;     --st-air-fg: #2c5aa5;
+    --st-sea-bg: #ddf1f4;     --st-sea-fg: #16626f;
+    --st-customs-bg: #f3ecfa; --st-customs-fg: #6b3fa0;
+    --st-stock-bg: #dcf2e2;   --st-stock-fg: #166534;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #131a2a; --card: #1b2437; --ink: #e6eaf2; --ink-2: #a3adc2; --ink-3: #6b7690;
+      --line: #2b3650; --line-2: #232d45;
+      --accent: #4cc3dd; --accent-deep: #7fd6e8; --accent-soft: #16303e; --accent-border: #2b586b;
+      --head: #0e1524; --head-ink: #a9b4ca;
+      --good: #52c17c;
+      --warn: #e5a558; --warn-bg: #33270f; --warn-line: #55431e;
+      --danger: #ef8a84; --danger-bg: #3a1a18; --danger-line: #5e2b28;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 2px 8px rgba(0,0,0,.35);
+      --st-pending-bg: #2a3348; --st-pending-fg: #b9c3d8;
+      --st-making-bg: #3a2e12;  --st-making-fg: #ecc477;
+      --st-done-bg: #16301f;    --st-done-fg: #7ed6a0;
+      --st-air-bg: #1c2c47;     --st-air-fg: #92b6ee;
+      --st-sea-bg: #123239;     --st-sea-fg: #74cddd;
+      --st-customs-bg: #2c2140; --st-customs-fg: #c6a3ef;
+      --st-stock-bg: #143323;   --st-stock-fg: #7fdb9e;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f6f7f9; --card: #ffffff; --ink: #182338; --ink-2: #5a6478; --ink-3: #9aa2b1;
+    --line: #e3e6ec; --line-2: #f0f2f5;
+    --accent: #0e7490; --accent-deep: #155e75; --accent-soft: #e8f4f7; --accent-border: #b5dde7;
+    --head: #182338; --head-ink: #c6cede;
+    --good: #15803d;
+    --warn: #b45309; --warn-bg: #fef6ec; --warn-line: #f0d9b5;
+    --danger: #b3261e; --danger-bg: #fdf1f0; --danger-line: #f2c7c4;
+    --shadow: 0 1px 2px rgba(24, 35, 56, .05), 0 2px 6px rgba(24, 35, 56, .06);
+    --st-pending-bg: #eceff5; --st-pending-fg: #46536e;
+    --st-making-bg: #fdf2dc;  --st-making-fg: #8a5a0b;
+    --st-done-bg: #e5f3ea;    --st-done-fg: #1d6b3c;
+    --st-air-bg: #e3edfb;     --st-air-fg: #2c5aa5;
+    --st-sea-bg: #ddf1f4;     --st-sea-fg: #16626f;
+    --st-customs-bg: #f3ecfa; --st-customs-fg: #6b3fa0;
+    --st-stock-bg: #dcf2e2;   --st-stock-fg: #166534;
+  }
+  :root[data-theme="dark"] {
+    --paper: #131a2a; --card: #1b2437; --ink: #e6eaf2; --ink-2: #a3adc2; --ink-3: #6b7690;
+    --line: #2b3650; --line-2: #232d45;
+    --accent: #4cc3dd; --accent-deep: #7fd6e8; --accent-soft: #16303e; --accent-border: #2b586b;
+    --head: #0e1524; --head-ink: #a9b4ca;
+    --good: #52c17c;
+    --warn: #e5a558; --warn-bg: #33270f; --warn-line: #55431e;
+    --danger: #ef8a84; --danger-bg: #3a1a18; --danger-line: #5e2b28;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 2px 8px rgba(0,0,0,.35);
+    --st-pending-bg: #2a3348; --st-pending-fg: #b9c3d8;
+    --st-making-bg: #3a2e12;  --st-making-fg: #ecc477;
+    --st-done-bg: #16301f;    --st-done-fg: #7ed6a0;
+    --st-air-bg: #1c2c47;     --st-air-fg: #92b6ee;
+    --st-sea-bg: #123239;     --st-sea-fg: #74cddd;
+    --st-customs-bg: #2c2140; --st-customs-fg: #c6a3ef;
+    --st-stock-bg: #143323;   --st-stock-fg: #7fdb9e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+    background: var(--paper); color: var(--ink); font-size: 14px;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  input, select, textarea { font-family: inherit; font-size: 14px; color: var(--ink); background: var(--card); }
+
+  /* ===== 顶部控制台横条 ===== */
+  .console {
+    background: var(--head); color: var(--head-ink);
+    padding: 14px 28px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .console .mark { display: flex; align-items: center; gap: 12px; }
+  .console .beacon {
+    width: 34px; height: 34px; border-radius: 8px; position: relative; flex: 0 0 34px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+  }
+  .console .beacon::after {
+    content: ""; position: absolute; inset: 11px;
+    border-radius: 50%; background: #fff; opacity: .9;
+  }
+  .console .beacon::before {
+    content: ""; position: absolute; inset: 5px;
+    border-radius: 50%; border: 2px solid rgba(255,255,255,.45);
+  }
+  .console h1 { color: #fff; font-size: 17px; letter-spacing: .02em; }
+  .console .sub { font-size: 12px; margin-top: 2px; }
+  .console .spacer { flex: 1; }
+  .console .btn { background: transparent; color: var(--head-ink); border-color: rgba(255,255,255,.22); }
+  .console .btn:hover { color: #fff; border-color: rgba(255,255,255,.5); background: transparent; }
+  .console .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .console .btn.primary:hover { filter: brightness(1.1); }
+
+  /* ===== 国家页签 ===== */
+  .country-bar {
+    background: var(--head); padding: 0 28px 0;
+    display: flex; gap: 4px; overflow-x: auto;
+    border-bottom: 2px solid var(--accent);
+  }
+  .country-bar button {
+    border: 0; background: transparent; color: var(--head-ink);
+    font-size: 13px; padding: 10px 16px; white-space: nowrap;
+    border-radius: 8px 8px 0 0;
+  }
+  .country-bar button:hover { color: #fff; }
+  .country-bar button.active { background: var(--accent); color: #fff; font-weight: 600; }
+
+  .btn {
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    padding: 8px 15px; border-radius: 7px; font-size: 13.5px; font-weight: 500;
+  }
+  .btn:hover { background: var(--line-2); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.quiet-danger { color: var(--danger); border-color: var(--danger-line); }
+  .btn.quiet-danger:hover { background: var(--danger-bg); }
+  .btn:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 22px 28px 60px; display: flex; flex-direction: column; gap: 26px; }
+
+  .eyebrow {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    font-size: 12px; letter-spacing: .18em; color: var(--ink-2); font-weight: 600;
+  }
+  .eyebrow::before { content: ""; width: 8px; height: 8px; background: var(--accent); border-radius: 2px; }
+  .eyebrow .tail { letter-spacing: 0; font-weight: 400; color: var(--ink-3); margin-left: auto; }
+
+  /* ===== 今日关注 ===== */
+  .focus { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .focus button {
+    text-align: left; background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 16px; box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 14px;
+  }
+  .focus button:hover { border-color: var(--accent-border); }
+  .focus button.on { outline: 2px solid var(--accent); }
+  .focus .n { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 44px; }
+  .focus .t { font-size: 13.5px; font-weight: 600; }
+  .focus .d { font-size: 12px; color: var(--ink-3); margin-top: 2px; line-height: 1.5; }
+  .focus .danger-card .n { color: var(--danger); }
+  .focus .warn-card .n { color: var(--warn); }
+  .focus .info-card .n { color: var(--accent); }
+  .focus .zero .n { color: var(--ink-3); }
+
+  /* ===== 货物流程 ===== */
+  .flow-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 26px 22px 20px; overflow-x: auto; }
+  .flow { display: flex; align-items: center; min-width: 1040px; }
+  .node {
+    flex: 1; border: 1px solid var(--line); background: var(--card);
+    border-radius: 9px; padding: 12px 14px; position: relative; cursor: pointer;
+  }
+  .node:hover { border-color: var(--accent); }
+  .node.on { outline: 2px solid var(--accent); }
+  .node .num {
+    position: absolute; top: -10px; left: 12px; min-width: 20px; height: 20px; padding: 0 5px;
+    background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .node.zero .num { background: var(--ink-3); }
+  .node h4 { font-size: 13.5px; margin: 5px 0 6px; }
+  .node .qty { font-size: 19px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .node .bn { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+  .node .alert-dot { font-size: 11.5px; color: var(--danger); font-weight: 600; margin-top: 3px; }
+  .flow .link { flex: 0 0 22px; height: 2px; background: var(--line); }
+  .flow .fork { flex: 1.05; display: flex; flex-direction: column; gap: 10px; }
+
+  /* ===== 国家概览 ===== */
+  .countries { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .ccard {
+    text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: var(--shadow); padding: 14px 16px;
+  }
+  .ccard:hover { border-color: var(--accent-border); }
+  .ccard.on { outline: 2px solid var(--accent); }
+  .ccard .c-head { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
+  .ccard .c-head .flag { font-size: 18px; }
+  .ccard .c-head .warn-chip {
+    margin-left: auto; font-size: 11.5px; font-weight: 600; color: var(--danger);
+    background: var(--danger-bg); border: 1px solid var(--danger-line); border-radius: 99px; padding: 2px 8px;
+  }
+  .ccard .rows { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .ccard .cell .k { font-size: 11px; color: var(--ink-3); }
+  .ccard .cell .v { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .ccard .next { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--ink-2); }
+
+  /* ===== 台账 ===== */
+  .ledger { background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 18px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--ink-2); }
+  .field input, .field select { border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; }
+  .filters .grow { flex: 1; min-width: 220px; }
+
+  .table-scroll { overflow-x: auto; margin-top: 14px; }
+  table { width: 100%; border-collapse: collapse; min-width: 980px; }
+  th {
+    text-align: left; font-size: 12px; color: var(--ink-2); font-weight: 600;
+    border-bottom: 2px solid var(--ink); padding: 8px 10px; white-space: nowrap;
+  }
+  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--accent); }
+  th .arrow { color: var(--accent); font-size: 10px; margin-left: 2px; }
+  td { padding: 10px; border-bottom: 1px solid var(--line-2); font-size: 13px; vertical-align: top; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: var(--line-2); }
+  td .main-line { font-weight: 600; }
+  td .sub-line { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  td .flag-ico { margin-right: 4px; }
+  .overdue-text { color: var(--danger); font-weight: 600; }
+  .warn-text { color: var(--warn); font-weight: 600; }
+  .empty { text-align: center; color: var(--ink-3); padding: 40px 0; }
+
+  .badge {
+    display: inline-block; font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 99px; white-space: nowrap;
+  }
+  .badge.st-pending { background: var(--st-pending-bg); color: var(--st-pending-fg); }
+  .badge.st-making  { background: var(--st-making-bg);  color: var(--st-making-fg); }
+  .badge.st-done    { background: var(--st-done-bg);    color: var(--st-done-fg); }
+  .badge.st-air     { background: var(--st-air-bg);     color: var(--st-air-fg); }
+  .badge.st-sea     { background: var(--st-sea-bg);     color: var(--st-sea-fg); }
+  .badge.st-customs { background: var(--st-customs-bg); color: var(--st-customs-fg); }
+  .badge.st-stock   { background: var(--st-stock-bg);   color: var(--st-stock-fg); }
+  .row-alert { display: block; font-size: 11.5px; margin-top: 4px; }
+
+  /* ===== 抽屉详情 ===== */
+  .drawer-mask { position: fixed; inset: 0; background: rgba(14, 20, 34, .45); z-index: 40; display: none; }
+  .drawer-mask.open { display: block; }
+  .drawer {
+    position: fixed; top: 0; right: -420px; bottom: 0; width: 400px; max-width: 94vw; z-index: 41;
+    background: var(--card); box-shadow: -8px 0 30px rgba(14, 20, 34, .25);
+    transition: right .22s ease; display: flex; flex-direction: column;
+  }
+  .drawer.open { right: 0; }
+  @media (prefers-reduced-motion: reduce) { .drawer { transition: none; } }
+  .drawer .d-head { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+  .drawer .d-head h4 { font-size: 16px; word-break: break-all; flex: 1; }
+  .drawer .d-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+  .drawer .d-close { border: 0; background: transparent; font-size: 20px; color: var(--ink-3); line-height: 1; }
+  .d-alerts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .d-alert {
+    font-size: 12.5px; font-weight: 600; border-radius: 7px; padding: 7px 10px;
+    background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-line);
+  }
+  .d-alert.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn-line); }
+  .d-alert.info { background: var(--accent-soft); color: var(--accent-deep); border-color: var(--accent-border); }
+  .d-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .d-item { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+  .d-item.wide { grid-column: 1 / -1; }
+  .d-item .k { font-size: 11px; color: var(--ink-3); }
+  .d-item .v { font-size: 13px; font-weight: 600; margin-top: 3px; word-break: break-all; line-height: 1.5; }
+  .d-tl { margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .d-tl .k { font-size: 11px; color: var(--ink-3); margin-bottom: 10px; }
+  .tl-item { display: flex; gap: 8px; font-size: 12px; position: relative; padding: 0 0 14px 16px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before { content: ""; position: absolute; left: 3px; top: 4px; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3); }
+  .tl-item:last-child::before { background: var(--accent); }
+  .tl-item::after { content: ""; position: absolute; left: 6px; top: 14px; bottom: -1px; width: 1px; background: var(--line); }
+  .tl-item:last-child::after { display: none; }
+  .tl-item .tl-label { font-weight: 600; }
+  .tl-item .tl-days { color: var(--ink-3); }
+  .tl-item .tl-date { color: var(--ink-3); margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .drawer .d-foot { padding: 14px 20px; border-top: 1px solid var(--line); display: flex; gap: 8px; }
+  .drawer .d-foot .btn { flex: 1; }
+
+  /* ===== 弹窗 ===== */
+  .overlay { position: fixed; inset: 0; background: rgba(14, 20, 34, .45); display: none; align-items: flex-start; justify-content: center; z-index: 50; padding: 5vh 16px; overflow-y: auto; }
+  .overlay.open { display: flex; }
+  .modal { background: var(--card); border-radius: 12px; width: 700px; max-width: 100%; box-shadow: 0 20px 60px rgba(14, 20, 34, .35); }
+  .modal .m-head { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .modal .m-head h3 { font-size: 16px; }
+  .modal .m-close { border: 0; background: transparent; font-size: 20px; color: var(--ink-3); line-height: 1; }
+  .modal .m-body { padding: 20px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .form-grid .field.span2 { grid-column: span 2; }
+  .form-grid .field.span3 { grid-column: 1 / -1; }
+  .form-grid textarea { border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; resize: vertical; min-height: 60px; }
+  .modal .m-foot { padding: 14px 20px; border-top: 1px solid var(--line); display: flex; gap: 10px; justify-content: flex-end; }
+  .modal .m-foot .left { margin-right: auto; }
+  .req::after { content: " *"; color: var(--danger); }
+
+  /* ===== 登录 ===== */
+  .login-screen { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: var(--head); }
+  .login-screen.open { display: flex; }
+  .login-box { background: var(--card); border-radius: 14px; padding: 36px 34px; width: 380px; max-width: 92vw; box-shadow: 0 24px 80px rgba(0,0,0,.45); }
+  .login-box h2 { font-size: 20px; margin: 14px 0 4px; }
+  .login-box p { font-size: 13px; color: var(--ink-2); margin-bottom: 20px; line-height: 1.7; }
+  .login-box .field { margin-bottom: 14px; }
+  .login-box .btn { width: 100%; padding: 10px; font-size: 15px; }
+  .login-box .beacon {
+    width: 40px; height: 40px; border-radius: 10px; position: relative;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+  }
+  .login-box .beacon::after { content: ""; position: absolute; inset: 13px; border-radius: 50%; background: #fff; opacity: .9; }
+  .login-box .beacon::before { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 2px solid rgba(255,255,255,.45); }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--ink); color: var(--paper); padding: 10px 20px; border-radius: 99px;
+    font-size: 13px; opacity: 0; transition: all .25s ease; z-index: 200; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: opacity .25s ease; } }
+
+  .foot-note { font-size: 12px; color: var(--ink-3); text-align: center; }
+
+  @media (max-width: 860px) {
+    .console, .country-bar { padding-left: 16px; padding-right: 16px; }
+    .wrap { padding: 18px 16px 60px; }
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .form-grid .field.span2 { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 登录 -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="beacon" aria-hidden="true"></div>
+    <h2>BOSEN 供应链控制台</h2>
+    <p>从下单、生产、空运/海运、清关到目的国库存的全链路台账。数据保存在当前浏览器。</p>
+    <div class="field">
+      <label class="req" for="loginName">姓名</label>
+      <input id="loginName" placeholder="请输入你的姓名" maxlength="20">
+    </div>
+    <div class="field">
+      <label for="loginRole">角色</label>
+      <select id="loginRole">
+        <option>总部</option><option>采购</option><option>运营</option><option>国家仓库</option>
+      </select>
+    </div>
+    <button class="btn primary" id="loginBtn">进入控制台</button>
+  </div>
+</div>
+
+<!-- 顶部 -->
+<header class="console">
+  <div class="mark">
+    <div class="beacon" aria-hidden="true"></div>
+    <div>
+      <h1>BOSEN 供应链控制台</h1>
+      <div class="sub" id="todayText"></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" id="exportBtn">导出CSV</button>
+  <button class="btn" id="resetBtn">恢复示例</button>
+  <button class="btn primary" id="addBtn">新增批次</button>
+  <button class="btn" id="logoutBtn">注销</button>
+</header>
+<nav class="country-bar" id="countryBar" aria-label="国家筛选"></nav>
+
+<main class="wrap">
+
+  <!-- 今日关注 -->
+  <section>
+    <div class="eyebrow">今日关注<span class="tail">再点一次卡片可取消筛选</span></div>
+    <div class="focus" id="focus"></div>
+  </section>
+
+  <!-- 货物流程 -->
+  <section>
+    <div class="eyebrow">货物流程<span class="tail">下单 → 生产 → 空运/海运 → 清关 → 目的国库存</span></div>
+    <div class="flow-card"><div class="flow" id="flow"></div></div>
+  </section>
+
+  <!-- 国家概览 -->
+  <section>
+    <div class="eyebrow">国家概览<span class="tail">点击国家卡片切换页签</span></div>
+    <div class="countries" id="countries"></div>
+  </section>
+
+  <!-- 批次台账 -->
+  <section>
+    <div class="eyebrow">批次台账<span class="tail" id="listCount"></span></div>
+    <div class="ledger">
+      <div class="filters">
+        <div class="field grow">
+          <label for="q">搜索</label>
+          <input id="q" placeholder="国家、订单号、供应商、设备、型号、柜号、备注">
+        </div>
+        <div class="field">
+          <label for="fStatus">状态</label>
+          <select id="fStatus"><option value="">全部</option></select>
+        </div>
+        <div class="field">
+          <label for="fTransport">运输方式</label>
+          <select id="fTransport"><option value="">全部</option><option>空运</option><option>海运</option></select>
+        </div>
+        <div class="field">
+          <label for="fSupplier">供应商</label>
+          <select id="fSupplier"><option value="">全部供应商</option></select>
+        </div>
+        <button class="btn" id="clearBtn">清除筛选</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>状态</th><th>国家</th><th>订单 / 批次</th><th>设备</th>
+              <th class="num sortable" data-sort="qty">数量<span class="arrow"></span></th>
+              <th class="num sortable" data-sort="value">货值 USD<span class="arrow"></span></th>
+              <th>运输 / 柜号</th><th>当前位置</th>
+              <th class="num sortable" data-sort="dwell">阶段停留<span class="arrow"></span></th>
+              <th class="sortable" data-sort="eta">预计到达<span class="arrow"></span></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <p class="foot-note">数据仅保存在当前浏览器（localStorage），换设备或清除站点数据会丢失，请定期「导出CSV」备份。<span id="footUser"></span></p>
+</main>
+
+<!-- 详情抽屉 -->
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer" aria-label="批次详情"></aside>
+
+<!-- 新增/编辑弹窗 -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="m-head">
+      <h3 id="modalTitle">新增批次</h3>
+      <button class="m-close" id="modalClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field"><label class="req" for="iPo">订单号</label><input id="iPo" placeholder="PO-2026-0001"></div>
+        <div class="field span2"><label for="iBatch">批次名称</label><input id="iBatch" placeholder="如：墨西哥7月空运1批次（可留空）"></div>
+        <div class="field"><label class="req" for="iStatus">状态</label><select id="iStatus"></select></div>
+        <div class="field"><label class="req" for="iCountry">国家 / 市场</label><input id="iCountry" list="countryList" placeholder="墨西哥"></div>
+        <datalist id="countryList"></datalist>
+        <div class="field"><label for="iTransport">运输方式</label><select id="iTransport"><option value="">—</option><option>空运</option><option>海运</option></select></div>
+        <div class="field span2"><label class="req" for="iDevice">设备名称 / 型号</label><input id="iDevice" placeholder="4G有线定位器 / GT06N"></div>
+        <div class="field"><label for="iType">设备类型</label><input id="iType" placeholder="有线GPS"></div>
+        <div class="field"><label class="req" for="iQty">数量（台/件）</label><input id="iQty" type="number" min="0" step="1" placeholder="0"></div>
+        <div class="field"><label for="iPrice">单价（USD）</label><input id="iPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="field"><label for="iSupplier">供应商</label><input id="iSupplier" list="supplierList" placeholder="供应商名称"></div>
+        <datalist id="supplierList"></datalist>
+        <div class="field"><label for="iContainer">柜号 / 运单号</label><input id="iContainer" placeholder="海运柜号或空运单号"></div>
+        <div class="field"><label for="iLocation">当前位置</label><input id="iLocation" placeholder="工厂生产线 / 深圳仓 / 港口…"></div>
+        <div class="field"><label for="iOrderDate">下单日期</label><input id="iOrderDate" type="date"></div>
+        <div class="field"><label for="iEta">预计到达</label><input id="iEta" type="date"></div>
+        <div class="field span3"><label for="iNotes">备注</label><textarea id="iNotes" placeholder="验货、认证、SIM卡、清关文件、异常情况等"></textarea></div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn quiet-danger left" id="deleteBtn" style="display:none">删除批次</button>
+      <button class="btn" id="cancelBtn">取消</button>
+      <button class="btn primary" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ================= 常量 ================= */
+const STORE_KEY = "bosen-scm-batches-v2";
+const USER_KEY  = "bosen-scm-user-v1";   // 与 V1 共用登录
+
+const STATUSES = [
+  { key: "pending", label: "已下单待生产", num: "1",  cls: "st-pending", dwellLimit: 7,  dwellMsg: "下单超7天未开产" },
+  { key: "making",  label: "生产中",       num: "2",  cls: "st-making",  dwellLimit: 30, dwellMsg: "生产超30天未完成" },
+  { key: "done",    label: "完成待发运",   num: "3",  cls: "st-done",    dwellLimit: 10, dwellMsg: "完成超10天未发运" },
+  { key: "air",     label: "空运在途",     num: "4A", cls: "st-air",     dwellLimit: 10, dwellMsg: "空运超10天未到港" },
+  { key: "sea",     label: "海运在途",     num: "4B", cls: "st-sea",     dwellLimit: 45, dwellMsg: "海运超45天未到港" },
+  { key: "customs", label: "到港清关",     num: "5",  cls: "st-customs", dwellLimit: 10, dwellMsg: "清关超10天" },
+  { key: "stock",   label: "目的国库存",   num: "6",  cls: "st-stock" },
+];
+const stMap = Object.fromEntries(STATUSES.map(s => [s.key, s]));
+const FLAGS = { "墨西哥": "🇲🇽", "哥伦比亚": "🇨🇴", "智利": "🇨🇱", "秘鲁": "🇵🇪", "巴西": "🇧🇷", "厄瓜多尔": "🇪🇨", "阿根廷": "🇦🇷" };
+const flag = c => FLAGS[c] || "🌐";
+
+/* ================= 示例数据 ================= */
+function sampleData() {
+  const y = new Date().getFullYear();
+  const d = (m, day) => `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  const h = (...pairs) => pairs.map(([status, at]) => ({ status, at }));
+  return [
+    { id: uid(), po: `PO-${y}-0521`, batchName: "", status: "stock", country: "墨西哥",
+      device: "4G无线定位器 / T-90", type: "无线GPS", qty: 460, price: 8.5, transport: "海运",
+      supplier: "深圳蓝驰科技", container: "MSKU-772610-3", location: "墨西哥仓库 A区",
+      orderDate: d(5, 21), eta: d(7, 2), notes: "已完成清关入库，剩余库存可售。",
+      history: h(["pending", d(5, 21)], ["making", d(5, 26)], ["done", d(6, 10)], ["sea", d(6, 12)], ["customs", d(6, 28)], ["stock", d(7, 2)]) },
+    { id: uid(), po: `PO-${y}-0608`, batchName: "", status: "pending", country: "哥伦比亚",
+      device: "双镜头行车记录仪 / DVR-X2", type: "行车记录仪", qty: 2000, price: 23, transport: "",
+      supplier: "东莞骏视电子", container: "", location: "供应商仓库",
+      orderDate: d(6, 8), eta: d(7, 30), notes: "等待排产，需跟催供应商确认上线日期。",
+      history: h(["pending", d(6, 8)]) },
+    { id: uid(), po: `PO-${y}-0712`, batchName: "", status: "making", country: "墨西哥",
+      device: "4G有线定位器 / GT06N", type: "有线GPS", qty: 1200, price: 6.8, transport: "",
+      supplier: "深圳蓝驰科技", container: "", location: "工厂生产线",
+      orderDate: d(7, 1), eta: d(8, 6), notes: "外壳已确认，等待SIM卡测试报告。",
+      history: h(["pending", d(7, 1)], ["making", d(7, 6)]) },
+    { id: uid(), po: `PO-${y}-0615`, batchName: "", status: "done", country: "智利",
+      device: "蓝牙Tag / TAG-BLE-01", type: "Tag", qty: 1500, price: 2.1, transport: "",
+      supplier: "惠州普联智造", container: "", location: "深圳仓待发运",
+      orderDate: d(6, 15), eta: d(8, 12), notes: "待凑柜，计划与秘鲁订单同柜海运。",
+      history: h(["pending", d(6, 15)], ["making", d(6, 20)], ["done", d(7, 8)]) },
+    { id: uid(), po: `MX-AIR-${y}-07-01`, batchName: `墨西哥${new Date().getMonth() + 1}月空运1批次`, status: "air", country: "墨西哥",
+      device: "蓝驰设备 / NOM认证样机", type: "混合设备", qty: 24, price: 0, transport: "空运",
+      supplier: "深圳蓝驰科技", container: "CX-8842-11", location: "香港转运中",
+      orderDate: d(7, 1), eta: addDays(3), notes: "认证样机加急，随附NOM认证文件。",
+      history: h(["pending", d(7, 1)], ["making", d(7, 2)], ["done", d(7, 6)], ["air", d(7, 8)]) },
+    { id: uid(), po: `PO-${y}-0428`, batchName: "智利5月海运柜", status: "customs", country: "智利",
+      device: "4G无线定位器 / T-90", type: "无线GPS", qty: 800, price: 8.5, transport: "海运",
+      supplier: "深圳蓝驰科技", container: "COSU-559214-8", location: "圣安东尼奥港",
+      orderDate: d(4, 28), eta: addDays(-6), notes: "海关要求补充原产地证明，货代跟进中。",
+      history: h(["pending", d(4, 28)], ["making", d(5, 4)], ["done", d(5, 20)], ["sea", d(5, 23)], ["customs", addDays(-13)]) },
+    { id: uid(), po: `PO-${y}-0602`, batchName: "", status: "sea", country: "秘鲁",
+      device: "OBD定位器 / OBD-22", type: "OBD", qty: 1000, price: 9.9, transport: "海运",
+      supplier: "深圳蓝驰科技", container: "OOLU-183377-0", location: "太平洋在途",
+      orderDate: d(6, 2), eta: d(7, 25), notes: "与智利订单分柜发运，ETA卡亚俄港。",
+      history: h(["pending", d(6, 2)], ["making", d(6, 6)], ["done", d(6, 18)], ["sea", d(6, 20)]) },
+  ];
+}
+
+/* ================= 状态 ================= */
+let batches = load();
+let countryTab = "";       // "" = 全部国家
+let alertFilter = "";      // "" | overdue | stuck | noeta | arriving
+let selectedId = null;
+let editingId = null;
+let sortKey = null, sortDir = 1;
+
+const $ = id => document.getElementById(id);
+function uid() { return "b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const v = JSON.parse(raw);
+      if (Array.isArray(v)) {
+        for (const b of v) if (!Array.isArray(b.history)) b.history = [];
+        return v;
+      }
+    }
+  } catch (e) {}
+  return sampleData();
+}
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify(batches)); }
+function nowStamp() {
+  const d = new Date(), p = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function logStatus(b, status) {
+  if (!Array.isArray(b.history)) b.history = [];
+  b.history.push({ status, at: nowStamp() });
+}
+
+/* ================= 日期与告警 ================= */
+function today0() { const t = new Date(); t.setHours(0, 0, 0, 0); return t; }
+function parseDate(s) { if (!s) return null; const d = new Date(String(s).slice(0, 10) + "T00:00:00"); return isNaN(d) ? null : d; }
+function addDays(n) { const t = new Date(today0().getTime() + n * 86400000); const p = x => String(x).padStart(2, "0"); return `${t.getFullYear()}-${p(t.getMonth() + 1)}-${p(t.getDate())}`; }
+function fmtMD(s) { const d = parseDate(s); return d ? `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}` : "–"; }
+function daysDiff(s) { const d = parseDate(s); if (!d) return null; return Math.round((d - today0()) / 86400000); }
+function dwellDays(b) {
+  const hist = Array.isArray(b.history) ? b.history : [];
+  const last = hist.length ? hist[hist.length - 1].at : b.orderDate;
+  const d = parseDate(last);
+  if (!d) return null;
+  return Math.max(0, Math.round((today0() - d) / 86400000));
+}
+function etaText(b) {
+  if (b.status === "stock") return { text: "已入库", overdue: false };
+  const n = daysDiff(b.eta);
+  if (n === null) return { text: "–", overdue: false };
+  if (n < 0) return { text: `已逾期${-n}天`, overdue: true };
+  return { text: `${fmtMD(b.eta)} / ${n}天`, overdue: false };
+}
+/* 告警：逾期 / 阶段滞留 / 缺ETA / 即将到达 */
+function alertsFor(b) {
+  const out = [];
+  if (b.status !== "stock") {
+    const n = daysDiff(b.eta);
+    if (n !== null && n < 0) out.push({ type: "overdue", level: "danger", label: `已逾期${-n}天` });
+    const s = stMap[b.status], dw = dwellDays(b);
+    if (s?.dwellLimit && dw !== null && dw > s.dwellLimit) out.push({ type: "stuck", level: "warn", label: `${s.dwellMsg}（已${dw}天）` });
+    if (!b.eta) out.push({ type: "noeta", level: "warn", label: "缺少预计到达日期" });
+    if (n !== null && n >= 0 && n <= 7 && ["air", "sea", "customs"].includes(b.status))
+      out.push({ type: "arriving", level: "info", label: `${n === 0 ? "今天" : n + "天后"}到达，请安排收货` });
+  }
+  return out;
+}
+const FOCUS_DEFS = [
+  { type: "overdue",  title: "已逾期",     desc: "超过预计到达日期仍未入库", card: "danger-card" },
+  { type: "stuck",    title: "阶段滞留",   desc: "在当前环节停留超过阈值",   card: "warn-card" },
+  { type: "noeta",    title: "缺少ETA",    desc: "未填预计到达，无法追踪",   card: "warn-card" },
+  { type: "arriving", title: "7天内到达",  desc: "请提前安排清关与收货",     card: "info-card" },
+];
+
+/* ================= 登录 ================= */
+function getUser() { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch (e) { return null; } }
+function requireLogin() {
+  const u = getUser();
+  $("loginScreen").classList.toggle("open", !u);
+  $("footUser").textContent = u ? ` 当前用户：${u.name}（${u.role}）` : "";
+}
+$("loginBtn").onclick = () => {
+  const name = $("loginName").value.trim();
+  if (!name) { $("loginName").focus(); return; }
+  localStorage.setItem(USER_KEY, JSON.stringify({ name, role: $("loginRole").value }));
+  requireLogin();
+  toast(`欢迎，${name}`);
+};
+$("loginName").addEventListener("keydown", e => { if (e.key === "Enter") $("loginBtn").click(); });
+$("logoutBtn").onclick = () => { localStorage.removeItem(USER_KEY); $("loginName").value = ""; requireLogin(); };
+
+/* ================= 筛选 ================= */
+function matches(b, f) {
+  if (f.country && b.country !== f.country) return false;
+  if (f.status && b.status !== f.status) return false;
+  if (f.transport && b.transport !== f.transport) return false;
+  if (f.supplier && b.supplier !== f.supplier) return false;
+  if (f.alert && !alertsFor(b).some(a => a.type === f.alert)) return false;
+  if (f.q) {
+    const hay = [b.po, b.batchName, b.country, b.device, b.type, b.supplier, b.container, b.location, b.notes, stMap[b.status]?.label].join(" ").toLowerCase();
+    if (!hay.includes(f.q)) return false;
+  }
+  return true;
+}
+function currentFilters() {
+  return {
+    q: $("q").value.trim().toLowerCase(),
+    status: $("fStatus").value,
+    country: countryTab,
+    transport: $("fTransport").value,
+    supplier: $("fSupplier").value,
+    alert: alertFilter,
+  };
+}
+function filtered() { const f = currentFilters(); return batches.filter(b => matches(b, f)); }
+/* 关注、流程按国家页签统计（不受状态/搜索影响） */
+function countryScoped() { return batches.filter(b => !countryTab || b.country === countryTab); }
+
+/* ================= 渲染 ================= */
+function fmtNum(n) { return Number(n || 0).toLocaleString("zh-CN"); }
+function fmtUSD(n) { return "$" + Math.round(Number(n || 0)).toLocaleString("en-US"); }
+function batchValue(b) { return Number(b.qty || 0) * Number(b.price || 0); }
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+function renderCountryBar() {
+  const bar = $("countryBar");
+  bar.innerHTML = "";
+  const countries = [...new Set(batches.map(b => b.country).filter(Boolean))].sort((a, b) => a.localeCompare(b, "zh"));
+  const mk = (value, label) => {
+    const btn = document.createElement("button");
+    btn.className = countryTab === value ? "active" : "";
+    btn.textContent = label;
+    btn.onclick = () => { countryTab = value; renderAll(); };
+    bar.appendChild(btn);
+  };
+  mk("", `全部国家（${batches.length}）`);
+  for (const c of countries) mk(c, `${flag(c)} ${c}（${batches.filter(b => b.country === c).length}）`);
+}
+
+function renderFocus() {
+  const scoped = countryScoped();
+  const box = $("focus");
+  box.innerHTML = "";
+  for (const def of FOCUS_DEFS) {
+    const n = scoped.filter(b => alertsFor(b).some(a => a.type === def.type)).length;
+    const el = document.createElement("button");
+    el.className = `${n ? def.card : "zero"}${alertFilter === def.type ? " on" : ""}`;
+    el.innerHTML = `<span class="n">${n}</span><span><span class="t">${def.title}</span><div class="d">${def.desc}</div></span>`;
+    el.onclick = () => { alertFilter = alertFilter === def.type ? "" : def.type; renderAll(); };
+    box.appendChild(el);
+  }
+}
+
+function renderFlow() {
+  const scoped = countryScoped();
+  const node = key => {
+    const s = stMap[key];
+    const rows = scoped.filter(b => b.status === key);
+    const qty = rows.reduce((a, b) => a + Number(b.qty || 0), 0);
+    const nAlert = rows.filter(b => alertsFor(b).some(a => a.level !== "info")).length;
+    return `<div class="node ${rows.length ? "" : "zero"} ${$("fStatus").value === key ? "on" : ""}" data-key="${key}">
+      <span class="num">${s.num}</span>
+      <h4>${s.label}</h4>
+      <div class="qty">${fmtNum(qty)}</div>
+      <div class="bn">${rows.length} 个批次</div>
+      ${nAlert ? `<div class="alert-dot">⚠ ${nAlert} 个需关注</div>` : ""}
+    </div>`;
+  };
+  $("flow").innerHTML = `
+    ${node("pending")}<div class="link"></div>
+    ${node("making")}<div class="link"></div>
+    ${node("done")}<div class="link"></div>
+    <div class="fork">${node("air")}${node("sea")}</div>
+    <div class="link"></div>${node("customs")}
+    <div class="link"></div>${node("stock")}`;
+  $("flow").querySelectorAll(".node").forEach(el => {
+    el.onclick = () => {
+      const k = el.dataset.key;
+      $("fStatus").value = $("fStatus").value === k ? "" : k;
+      renderAll();
+    };
+  });
+}
+
+function renderCountries() {
+  const box = $("countries");
+  box.innerHTML = "";
+  const countries = [...new Set(batches.map(b => b.country).filter(Boolean))].sort((a, b) => a.localeCompare(b, "zh"));
+  for (const c of countries) {
+    const rows = batches.filter(b => b.country === c);
+    const sum = keys => rows.filter(b => keys.includes(b.status)).reduce((a, b) => a + Number(b.qty || 0), 0);
+    const stock = sum(["stock"]);
+    const transit = sum(["air", "sea", "customs"]);
+    const making = sum(["pending", "making", "done"]);
+    const nAlert = rows.filter(b => alertsFor(b).some(a => a.level !== "info")).length;
+    /* 最近一次到货：在途批次中最早的未来 ETA */
+    const etas = rows.filter(b => ["air", "sea", "customs"].includes(b.status)).map(b => daysDiff(b.eta)).filter(n => n !== null && n >= 0);
+    const next = etas.length ? Math.min(...etas) : null;
+    const el = document.createElement("button");
+    el.className = "ccard" + (countryTab === c ? " on" : "");
+    el.innerHTML = `
+      <div class="c-head"><span class="flag">${flag(c)}</span>${esc(c)}
+        ${nAlert ? `<span class="warn-chip">⚠ ${nAlert} 需关注</span>` : ""}
+      </div>
+      <div class="rows">
+        <span class="cell"><span class="k">本地库存</span><div class="v">${fmtNum(stock)}</div></span>
+        <span class="cell"><span class="k">在途+清关</span><div class="v">${fmtNum(transit)}</div></span>
+        <span class="cell"><span class="k">生产端</span><div class="v">${fmtNum(making)}</div></span>
+      </div>
+      <div class="next">${next === null ? "暂无在途到货" : next === 0 ? "最近一批今天到达" : `最近一批 ${next} 天后到达`}</div>`;
+    el.onclick = () => { countryTab = countryTab === c ? "" : c; renderAll(); };
+    box.appendChild(el);
+  }
+}
+
+function renderTable() {
+  const rows = filtered();
+  const totalQty = rows.reduce((a, b) => a + Number(b.qty || 0), 0);
+  const totalVal = rows.reduce((a, b) => a + batchValue(b), 0);
+  $("listCount").textContent = `共 ${rows.length} 批 · ${fmtNum(totalQty)} 台/件 · 货值 ${fmtUSD(totalVal)}`;
+  const tb = $("tbody");
+  tb.innerHTML = "";
+  if (!rows.length) {
+    tb.innerHTML = `<tr><td colspan="10" class="empty">没有符合条件的批次，试试清除筛选或点击「新增批次」。</td></tr>`;
+    return;
+  }
+  const order = Object.fromEntries(STATUSES.map((s, i) => [s.key, i]));
+  const nullLast = (ta, tb2, cmp) => ta === null && tb2 === null ? 0 : ta === null ? 1 : tb2 === null ? -1 : cmp;
+  if (sortKey === "qty") rows.sort((a, b) => (Number(a.qty || 0) - Number(b.qty || 0)) * sortDir);
+  else if (sortKey === "value") rows.sort((a, b) => (batchValue(a) - batchValue(b)) * sortDir);
+  else if (sortKey === "dwell") rows.sort((a, b) => { const x = dwellDays(a), y = dwellDays(b); return nullLast(x, y, (x - y) * sortDir); });
+  else if (sortKey === "eta") rows.sort((a, b) => {
+    const t = v => { const d = parseDate(v.eta); return d ? d.getTime() : null; };
+    const x = t(a), y = t(b); return nullLast(x, y, (x - y) * sortDir);
+  });
+  else rows.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9) || String(a.po).localeCompare(String(b.po)));
+  document.querySelectorAll("th.sortable").forEach(th => {
+    th.querySelector(".arrow").textContent = th.dataset.sort === sortKey ? (sortDir === 1 ? "▲" : "▼") : "";
+  });
+  for (const b of rows) {
+    const s = stMap[b.status] || STATUSES[0];
+    const eta = etaText(b);
+    const alerts = alertsFor(b).filter(a => a.level !== "info");
+    const dw = dwellDays(b);
+    const dwOver = s.dwellLimit && dw !== null && dw > s.dwellLimit;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><span class="badge ${s.cls}">${s.label}</span>${alerts.map(a => `<span class="row-alert ${a.level === "danger" ? "overdue-text" : "warn-text"}">⚠ ${a.label}</span>`).join("")}</td>
+      <td><span class="flag-ico">${flag(b.country)}</span>${esc(b.country) || "–"}</td>
+      <td><div class="main-line">${esc(b.batchName || b.po)}</div><div class="sub-line">${esc(b.batchName ? b.po : (b.supplier || ""))}</div></td>
+      <td><div class="main-line">${esc(b.device)}</div><div class="sub-line">${esc(b.type || "")}</div></td>
+      <td class="num">${fmtNum(b.qty)}</td>
+      <td class="num">${b.price ? fmtUSD(batchValue(b)) : "–"}</td>
+      <td><div>${esc(b.transport) || "–"}</div><div class="sub-line">${esc(b.container || "")}</div></td>
+      <td>${esc(b.location) || "–"}</td>
+      <td class="num ${dwOver ? "warn-text" : ""}">${dw === null ? "–" : dw + "天"}</td>
+      <td class="${eta.overdue ? "overdue-text" : ""}">${eta.text}</td>`;
+    tr.onclick = () => { selectedId = b.id; openDrawer(); };
+    tb.appendChild(tr);
+  }
+}
+
+/* ================= 详情抽屉 ================= */
+function openDrawer() {
+  renderDrawer();
+  $("drawerMask").classList.add("open");
+  $("drawer").classList.add("open");
+}
+function closeDrawer() {
+  $("drawerMask").classList.remove("open");
+  $("drawer").classList.remove("open");
+}
+$("drawerMask").onclick = closeDrawer;
+
+function renderDrawer() {
+  const b = batches.find(x => x.id === selectedId);
+  const box = $("drawer");
+  if (!b) { box.innerHTML = ""; return; }
+  const s = stMap[b.status] || STATUSES[0];
+  const alerts = alertsFor(b);
+  let nextKey = null;
+  if (b.status === "pending") nextKey = "making";
+  else if (b.status === "making") nextKey = "done";
+  else if (b.status === "done") nextKey = (b.transport === "海运") ? "sea" : "air";
+  else if (b.status === "air" || b.status === "sea") nextKey = "customs";
+  else if (b.status === "customs") nextKey = "stock";
+  const item = (k, v, wide) => `<div class="d-item${wide ? " wide" : ""}"><div class="k">${k}</div><div class="v">${v || "–"}</div></div>`;
+  const eta = etaText(b);
+  box.innerHTML = `
+    <div class="d-head">
+      <h4>${esc(b.po)}</h4>
+      <span class="badge ${s.cls}">${s.label}</span>
+      <button class="d-close" id="drawerClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="d-body">
+      ${alerts.length ? `<div class="d-alerts">${alerts.map(a => `<div class="d-alert ${a.level === "danger" ? "" : a.level}">⚠ ${a.label}</div>`).join("")}</div>` : ""}
+      <div class="d-grid">
+        ${item("设备", esc(b.device) + (b.type ? `<br><span style="font-weight:400;color:var(--ink-3)">${esc(b.type)}</span>` : ""))}
+        ${item("国家 / 市场", `${flag(b.country)} ${esc(b.country)}`)}
+        ${item("批次名称", esc(b.batchName))}
+        ${item("运输方式", esc(b.transport))}
+        ${item("数量", fmtNum(b.qty))}
+        ${item("货值", b.price ? `${fmtUSD(batchValue(b))}<br><span style="font-weight:400;color:var(--ink-3)">单价 $${Number(b.price)}</span>` : "–")}
+        ${item("供应商", esc(b.supplier))}
+        ${item("柜号 / 运单号", esc(b.container))}
+        ${item("当前位置", esc(b.location))}
+        ${item("预计到达", eta.overdue ? `<span class="overdue-text">${eta.text}</span>` : (b.eta || "–"))}
+        ${item("下单日期", b.orderDate || "–")}
+        ${item("阶段停留", dwellDays(b) === null ? "–" : dwellDays(b) + "天")}
+        ${item("备注", esc(b.notes), true)}
+      </div>
+      ${renderTimeline(b)}
+    </div>
+    <div class="d-foot">
+      <button class="btn" id="dEdit">编辑</button>
+      ${nextKey ? `<button class="btn primary" id="dNext">推进到「${stMap[nextKey].label}」</button>` : ""}
+    </div>`;
+  $("drawerClose").onclick = closeDrawer;
+  $("dEdit").onclick = () => { closeDrawer(); openModal(b.id); };
+  const nextBtn = $("dNext");
+  if (nextBtn) nextBtn.onclick = () => {
+    b.status = nextKey;
+    if (nextKey === "air" && !b.transport) b.transport = "空运";
+    if (nextKey === "sea" && !b.transport) b.transport = "海运";
+    logStatus(b, nextKey);
+    save(); renderAll(); renderDrawer();
+    toast(`已推进到「${stMap[nextKey].label}」`);
+  };
+}
+
+function renderTimeline(b) {
+  const hist = Array.isArray(b.history) ? b.history : [];
+  if (!hist.length) return "";
+  const items = hist.map((h, i) => {
+    let days = "";
+    const cur = parseDate(h.at);
+    const nxt = i < hist.length - 1 ? parseDate(hist[i + 1].at) : today0();
+    if (cur && nxt) {
+      const n = Math.max(0, Math.round((nxt - cur) / 86400000));
+      days = i < hist.length - 1 ? `停留${n}天` : `已${n}天`;
+    }
+    return `<div class="tl-item">
+      <span class="tl-label">${esc(stMap[h.status]?.label || h.status)}</span>
+      <span class="tl-days">${days}</span>
+      <span class="tl-date">${esc(h.at)}</span>
+    </div>`;
+  }).join("");
+  return `<div class="d-tl"><div class="k">状态历史</div>${items}</div>`;
+}
+
+/* ================= 筛选选项与总渲染 ================= */
+function renderFilterOptions() {
+  const fill = (sel, values, allLabel) => {
+    const cur = sel.value;
+    sel.innerHTML = `<option value="">${allLabel}</option>` +
+      values.map(v => `<option value="${esc(v.value ?? v)}">${esc(v.label ?? v)}</option>`).join("");
+    sel.value = [...sel.options].some(o => o.value === cur) ? cur : "";
+  };
+  fill($("fStatus"), STATUSES.map(s => ({ value: s.key, label: s.label })), "全部");
+  fill($("fSupplier"), uniq(batches.map(b => b.supplier)), "全部供应商");
+  $("countryList").innerHTML = uniq(batches.map(b => b.country)).map(c => `<option value="${esc(c)}">`).join("");
+  $("supplierList").innerHTML = uniq(batches.map(b => b.supplier)).map(c => `<option value="${esc(c)}">`).join("");
+}
+function uniq(arr) { return [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b, "zh")); }
+
+function renderAll() {
+  renderFilterOptions();
+  renderCountryBar();
+  renderFocus();
+  renderFlow();
+  renderCountries();
+  renderTable();
+}
+
+/* ================= 弹窗 ================= */
+function openModal(id) {
+  editingId = id || null;
+  const b = id ? batches.find(x => x.id === id) : null;
+  $("modalTitle").textContent = b ? `编辑批次 · ${b.po}` : "新增批次";
+  $("deleteBtn").style.display = b ? "" : "none";
+  $("iStatus").innerHTML = STATUSES.map(s => `<option value="${s.key}">${s.num} ${s.label}</option>`).join("");
+  $("iPo").value = b?.po || "";
+  $("iBatch").value = b?.batchName || "";
+  $("iStatus").value = b?.status || "pending";
+  $("iCountry").value = b?.country || (countryTab || "");
+  $("iTransport").value = b?.transport || "";
+  $("iDevice").value = b?.device || "";
+  $("iType").value = b?.type || "";
+  $("iQty").value = b?.qty ?? "";
+  $("iPrice").value = b?.price ?? "";
+  $("iSupplier").value = b?.supplier || "";
+  $("iContainer").value = b?.container || "";
+  $("iLocation").value = b?.location || "";
+  $("iOrderDate").value = b?.orderDate || new Date().toISOString().slice(0, 10);
+  $("iEta").value = b?.eta || "";
+  $("iNotes").value = b?.notes || "";
+  $("modalOverlay").classList.add("open");
+  $("iPo").focus();
+}
+function closeModal() { $("modalOverlay").classList.remove("open"); }
+
+$("saveBtn").onclick = () => {
+  const po = $("iPo").value.trim();
+  const country = $("iCountry").value.trim();
+  const device = $("iDevice").value.trim();
+  const qty = Number($("iQty").value);
+  const price = $("iPrice").value === "" ? 0 : Number($("iPrice").value);
+  if (!po) { toast("请填写订单号"); $("iPo").focus(); return; }
+  if (!country) { toast("请填写国家 / 市场"); $("iCountry").focus(); return; }
+  if (!device) { toast("请填写设备名称"); $("iDevice").focus(); return; }
+  if (!Number.isFinite(qty) || qty < 0) { toast("请填写正确的数量"); $("iQty").focus(); return; }
+  if (!Number.isFinite(price) || price < 0) { toast("请填写正确的单价"); $("iPrice").focus(); return; }
+  const data = {
+    po, country, device, qty, price,
+    batchName: $("iBatch").value.trim(),
+    status: $("iStatus").value,
+    transport: $("iTransport").value,
+    type: $("iType").value.trim(),
+    supplier: $("iSupplier").value.trim(),
+    container: $("iContainer").value.trim(),
+    location: $("iLocation").value.trim(),
+    orderDate: $("iOrderDate").value,
+    eta: $("iEta").value,
+    notes: $("iNotes").value.trim(),
+  };
+  if (editingId) {
+    const b = batches.find(x => x.id === editingId);
+    const statusChanged = b.status !== data.status;
+    Object.assign(b, data);
+    if (statusChanged) logStatus(b, data.status);
+    toast("批次已更新");
+  } else {
+    const b = { id: uid(), ...data, history: [] };
+    logStatus(b, data.status);
+    batches.push(b);
+    selectedId = b.id;
+    toast("批次已创建");
+  }
+  save(); closeModal(); renderAll();
+};
+$("deleteBtn").onclick = () => {
+  const b = batches.find(x => x.id === editingId);
+  if (!b || !confirm(`确定删除批次「${b.po}」？此操作不可撤销。`)) return;
+  batches = batches.filter(x => x.id !== editingId);
+  if (selectedId === editingId) { selectedId = null; closeDrawer(); }
+  save(); closeModal(); renderAll();
+  toast("批次已删除");
+};
+$("cancelBtn").onclick = closeModal;
+$("modalClose").onclick = closeModal;
+$("modalOverlay").addEventListener("mousedown", e => { if (e.target === e.currentTarget) closeModal(); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if ($("modalOverlay").classList.contains("open")) closeModal();
+  else closeDrawer();
+});
+
+/* ================= 顶栏动作 ================= */
+$("addBtn").onclick = () => openModal(null);
+$("resetBtn").onclick = () => {
+  if (!confirm("恢复示例数据会覆盖当前所有批次，确定继续？")) return;
+  batches = sampleData();
+  selectedId = null; countryTab = ""; alertFilter = "";
+  closeDrawer(); save(); renderAll();
+  toast("已恢复示例数据");
+};
+$("exportBtn").onclick = () => {
+  const cols = [
+    ["状态", b => stMap[b.status]?.label || b.status], ["国家", b => b.country],
+    ["订单号", b => b.po], ["批次名称", b => b.batchName], ["运输方式", b => b.transport],
+    ["设备", b => b.device], ["设备类型", b => b.type], ["数量", b => b.qty],
+    ["单价USD", b => b.price], ["货值USD", b => Math.round(batchValue(b))],
+    ["供应商", b => b.supplier], ["柜号/运单号", b => b.container], ["当前位置", b => b.location],
+    ["下单日期", b => b.orderDate], ["预计到达", b => b.eta], ["到达情况", b => etaText(b).text],
+    ["阶段停留天数", b => dwellDays(b) ?? ""], ["告警", b => alertsFor(b).map(a => a.label).join("；")],
+    ["备注", b => b.notes],
+  ];
+  const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const lines = [cols.map(c => q(c[0])).join(",")];
+  for (const b of filtered()) lines.push(cols.map(c => q(c[1](b))).join(","));
+  const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `供应链批次_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast(`已导出 ${filtered().length} 条记录`);
+};
+
+/* ================= 筛选事件 ================= */
+$("q").addEventListener("input", renderTable);
+$("fStatus").addEventListener("change", renderAll);
+$("fTransport").addEventListener("change", renderAll);
+$("fSupplier").addEventListener("change", renderAll);
+$("clearBtn").onclick = () => {
+  $("q").value = "";
+  $("fStatus").value = ""; $("fTransport").value = ""; $("fSupplier").value = "";
+  countryTab = ""; alertFilter = "";
+  renderAll();
+};
+document.querySelectorAll("th.sortable").forEach(th => {
+  th.onclick = () => {
+    const k = th.dataset.sort;
+    if (sortKey !== k) { sortKey = k; sortDir = 1; }
+    else if (sortDir === 1) { sortDir = -1; }
+    else { sortKey = null; sortDir = 1; }
+    renderTable();
+  };
+});
+
+/* ================= 其他 ================= */
+let toastTimer;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+(function init() {
+  const now = new Date();
+  const week = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"][now.getDay()];
+  $("todayText").textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${week} · 全链路货物台账`;
+  requireLogin();
+  renderAll();
+})();
+</script>
+</body>
+</html>
