@@ -62,3 +62,9 @@ src/styles.css   6 套主题 + 全部样式
 src/app.js       学习模式、SRS 复习、TTS、录音、进度存储
 src/data.js      10 个单元的词汇数据（西/英/中 + 例句）
 ```
+
+---
+
+## 子项目：BOSEN 供应链管理系统
+
+`supply-chain/` 目录下是一个独立的供应链管理系统（货物进度台账）：六阶段货物进程（下单 → 生产 → 空运/海运 → 目的国库存）、批次明细、搜索筛选、CSV 导出，纯前端单文件，浏览器直接打开 `supply-chain/index.html` 即可，详见 [supply-chain/README.md](supply-chain/README.md)。

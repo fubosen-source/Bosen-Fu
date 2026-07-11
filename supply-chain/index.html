@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOSEN 供应链管理系统</title>
+<style>
+  :root {
+    --brand: #c8102e;
+    --brand-dark: #a00d25;
+    --brand-soft: #fdf2f3;
+    --brand-border: #f3c2ca;
+    --sidebar-bg: #10182b;
+    --sidebar-ink: #cbd5e1;
+    --ink: #1f2937;
+    --ink-2: #4b5563;
+    --ink-3: #9ca3af;
+    --surface: #f3f4f6;
+    --card: #ffffff;
+    --line: #e5e7eb;
+    --radius: 10px;
+    --shadow: 0 1px 2px rgba(16, 24, 43, .06), 0 1px 3px rgba(16, 24, 43, .08);
+    /* 状态色（始终与文字标签同时出现，不单独用颜色传达状态） */
+    --st-pending-bg: #eef2ff;  --st-pending-fg: #3730a3;
+    --st-making-bg: #fef3c7;   --st-making-fg: #92400e;
+    --st-done-bg: #d1fae5;     --st-done-fg: #065f46;
+    --st-air-bg: #dbeafe;      --st-air-fg: #1e40af;
+    --st-sea-bg: #cffafe;      --st-sea-fg: #155e75;
+    --st-stock-bg: #dcfce7;    --st-stock-fg: #166534;
+    --danger: #b91c1c;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 14px;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  input, select, textarea { font-family: inherit; font-size: 14px; color: var(--ink); }
+
+  /* ========== 布局 ========== */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 224px; flex: 0 0 224px;
+    background: linear-gradient(160deg, var(--sidebar-bg) 55%, #1b1024 100%);
+    color: var(--sidebar-ink);
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .sidebar .brand { padding: 20px 18px 14px; }
+  .sidebar .brand .logo {
+    display: inline-block; background: var(--brand); color: #fff;
+    font-weight: 800; letter-spacing: .12em; font-size: 13px;
+    padding: 4px 10px; border-radius: 4px;
+  }
+  .sidebar .brand h1 { color: #fff; font-size: 16px; margin-top: 12px; line-height: 1.4; }
+  .sidebar .brand p { font-size: 12px; color: #8ea0b8; margin-top: 8px; line-height: 1.6; }
+  .nav { flex: 1; padding: 8px 10px; overflow-y: auto; }
+  .nav button {
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; text-align: left; border: 0; background: transparent;
+    color: var(--sidebar-ink); font-size: 14px;
+    padding: 10px 12px; border-radius: 8px; margin-bottom: 2px;
+  }
+  .nav button:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+  .nav button.active { background: var(--brand); color: #fff; font-weight: 600; }
+  .nav button .count {
+    font-size: 12px; color: #8ea0b8; background: rgba(255, 255, 255, .08);
+    padding: 1px 8px; border-radius: 99px; min-width: 26px; text-align: center;
+  }
+  .nav button.active .count { color: #fff; background: rgba(255, 255, 255, .22); }
+  .sidebar .foot { padding: 14px 18px; font-size: 11px; color: #64748b; line-height: 1.7; border-top: 1px solid rgba(255,255,255,.08); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+  /* ========== 顶栏 ========== */
+  .topbar {
+    background: var(--card); border-bottom: 3px solid var(--brand);
+    padding: 14px 24px; display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; z-index: 20;
+  }
+  .topbar .title { border-left: 4px solid var(--brand); padding-left: 12px; }
+  .topbar .title h2 { font-size: 19px; }
+  .topbar .title .date { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .topbar .spacer { flex: 1; }
+  .btn {
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500;
+  }
+  .btn:hover { background: var(--surface); }
+  .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .btn.primary:hover { background: var(--brand-dark); }
+  .btn.outline-danger { color: var(--brand); border-color: var(--brand-border); }
+  .btn.outline-danger:hover { background: var(--brand-soft); }
+  .btn.danger { background: #fff; border-color: #fecaca; color: var(--danger); }
+  .btn.danger:hover { background: #fef2f2; }
+
+  .content { padding: 20px 24px 40px; display: flex; flex-direction: column; gap: 20px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+  .section-head h3 { font-size: 15px; }
+  .section-head .hint { font-size: 12px; color: var(--ink-3); }
+
+  /* ========== 概览统计卡 ========== */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .stat {
+    background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    border-top: 3px solid var(--brand); padding: 14px 16px 12px;
+    text-align: left; border-left: 0; border-right: 0; border-bottom: 0; cursor: pointer;
+  }
+  .stat:hover { box-shadow: 0 3px 10px rgba(16,24,43,.12); }
+  .stat.active { outline: 2px solid var(--brand); }
+  .stat .label { font-size: 13px; color: var(--ink-2); }
+  .stat .value { font-size: 28px; font-weight: 800; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+  .stat .sub { font-size: 12px; color: var(--ink-3); }
+
+  /* ========== 货物进程 ========== */
+  .pipeline-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; overflow-x: auto; }
+  .pipeline { display: flex; align-items: center; gap: 0; min-width: 900px; }
+  .pipe-stage {
+    flex: 1; border: 1px solid var(--brand-border); background: var(--brand-soft);
+    border-radius: 8px; padding: 14px 16px; position: relative; cursor: pointer;
+  }
+  .pipe-stage:hover { border-color: var(--brand); }
+  .pipe-stage.active { outline: 2px solid var(--brand); }
+  .pipe-stage.dim { background: #fafafa; border-color: var(--line); }
+  .pipe-stage .num {
+    position: absolute; top: -11px; left: 14px;
+    background: var(--brand); color: #fff; font-size: 11px; font-weight: 700;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pipe-stage.dim .num { background: var(--ink-3); }
+  .pipe-stage h4 { font-size: 14px; margin: 6px 0 8px; }
+  .pipe-stage p { font-size: 12px; color: var(--ink-2); line-height: 1.7; }
+  .pipe-link { flex: 0 0 28px; height: 2px; background: var(--brand-border); }
+  .pipe-split { flex: 1.1; display: flex; flex-direction: column; gap: 12px; }
+
+  /* ========== 批次明细 ========== */
+  .list-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+  .list-card, .detail-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .list-card { padding: 18px; min-width: 0; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 6px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--ink-2); }
+  .field input, .field select {
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fff;
+  }
+  .field input:focus, .field select:focus, textarea:focus { outline: 2px solid var(--brand-border); border-color: var(--brand); }
+  .filters .grow { flex: 1; min-width: 220px; }
+  .more-filters { display: none; }
+  .more-filters.open { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; padding: 10px 0 4px; border-top: 1px dashed var(--line); margin-top: 8px; }
+
+  .table-scroll { overflow-x: auto; margin-top: 12px; }
+  table { width: 100%; border-collapse: collapse; min-width: 780px; }
+  th {
+    text-align: left; font-size: 12px; color: var(--ink-2); font-weight: 600;
+    border-bottom: 2px solid var(--ink); padding: 8px 10px; white-space: nowrap;
+  }
+  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td { padding: 10px; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: #f9fafb; }
+  tbody tr.selected { background: #eff6ff; }
+  td .main-line { font-weight: 600; }
+  td .sub-line { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .overdue { color: var(--danger); font-weight: 600; }
+  .empty { text-align: center; color: var(--ink-3); padding: 36px 0; }
+
+  .badge {
+    display: inline-block; font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 99px; white-space: nowrap;
+  }
+  .badge.st-pending { background: var(--st-pending-bg); color: var(--st-pending-fg); }
+  .badge.st-making  { background: var(--st-making-bg);  color: var(--st-making-fg); }
+  .badge.st-done    { background: var(--st-done-bg);    color: var(--st-done-fg); }
+  .badge.st-air     { background: var(--st-air-bg);     color: var(--st-air-fg); }
+  .badge.st-sea     { background: var(--st-sea-bg);     color: var(--st-sea-fg); }
+  .badge.st-stock   { background: var(--st-stock-bg);   color: var(--st-stock-fg); }
+
+  /* ========== 详情侧栏 ========== */
+  .detail-card { padding: 18px; position: sticky; top: 84px; }
+  .detail-card .d-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .detail-card .d-head h4 { font-size: 16px; word-break: break-all; }
+  .detail-card .d-status { margin: 12px 0; text-align: center; }
+  .detail-card .d-status .badge { display: block; padding: 7px; font-size: 13px; }
+  .d-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .d-item { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+  .d-item.wide { grid-column: 1 / -1; }
+  .d-item .k { font-size: 11px; color: var(--ink-3); }
+  .d-item .v { font-size: 13px; font-weight: 600; margin-top: 3px; word-break: break-all; line-height: 1.5; }
+  .d-actions { display: flex; gap: 8px; margin-top: 12px; }
+  .d-actions .btn { flex: 1; text-align: center; }
+  .d-empty { color: var(--ink-3); font-size: 13px; text-align: center; padding: 40px 10px; line-height: 1.8; }
+
+  /* ========== 弹窗 ========== */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(16, 24, 43, .45);
+    display: none; align-items: flex-start; justify-content: center; z-index: 50;
+    padding: 5vh 16px; overflow-y: auto;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 12px; width: 680px; max-width: 100%;
+    box-shadow: 0 20px 60px rgba(16, 24, 43, .3);
+  }
+  .modal .m-head {
+    padding: 16px 20px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal .m-head h3 { font-size: 16px; }
+  .modal .m-close { border: 0; background: transparent; font-size: 20px; color: var(--ink-3); line-height: 1; }
+  .modal .m-body { padding: 20px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .form-grid .field.span2 { grid-column: span 2; }
+  .form-grid .field.span3 { grid-column: 1 / -1; }
+  .form-grid textarea { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical; min-height: 60px; }
+  .modal .m-foot { padding: 14px 20px; border-top: 1px solid var(--line); display: flex; gap: 10px; justify-content: flex-end; }
+  .modal .m-foot .left { margin-right: auto; }
+  .req::after { content: " *"; color: var(--brand); }
+
+  /* ========== 登录 ========== */
+  .login-screen {
+    position: fixed; inset: 0; z-index: 100; display: none;
+    align-items: center; justify-content: center;
+    background: linear-gradient(150deg, var(--sidebar-bg) 50%, #2a1030 100%);
+  }
+  .login-screen.open { display: flex; }
+  .login-box { background: #fff; border-radius: 14px; padding: 36px 34px; width: 380px; max-width: 92vw; box-shadow: 0 24px 80px rgba(0,0,0,.4); }
+  .login-box .logo {
+    display: inline-block; background: var(--brand); color: #fff; font-weight: 800;
+    letter-spacing: .12em; font-size: 14px; padding: 5px 12px; border-radius: 4px;
+  }
+  .login-box h2 { font-size: 20px; margin: 14px 0 4px; }
+  .login-box p { font-size: 13px; color: var(--ink-2); margin-bottom: 20px; line-height: 1.7; }
+  .login-box .field { margin-bottom: 14px; }
+  .login-box .btn { width: 100%; padding: 10px; font-size: 15px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 99px;
+    font-size: 13px; opacity: 0; transition: all .25s ease; z-index: 200; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 1100px) {
+    .list-wrap { grid-template-columns: 1fr; }
+    .detail-card { position: static; }
+  }
+  @media (max-width: 860px) {
+    .sidebar { display: none; }
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .form-grid .field.span2 { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 登录 -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <span class="logo">BOSEN</span>
+    <h2>供应链管理系统</h2>
+    <p>总部、采购、运营、各国家仓库共用的货物进度台账。数据保存在当前浏览器。</p>
+    <div class="field">
+      <label class="req" for="loginName">姓名</label>
+      <input id="loginName" placeholder="请输入你的姓名" maxlength="20">
+    </div>
+    <div class="field">
+      <label for="loginRole">角色</label>
+      <select id="loginRole">
+        <option>总部</option>
+        <option>采购</option>
+        <option>运营</option>
+        <option>国家仓库</option>
+      </select>
+    </div>
+    <button class="btn primary" id="loginBtn">进入系统</button>
+  </div>
+</div>
+
+<div class="app">
+  <!-- 侧栏 -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="logo">BOSEN</span>
+      <h1>BOSEN供应链管理系统</h1>
+      <p>总部、采购、运营、各国家仓库共用的货物进度台账</p>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="foot">数据会保存在当前浏览器，仅本机可见。<br><span id="footUser"></span></div>
+  </aside>
+
+  <!-- 主区 -->
+  <div class="main">
+    <header class="topbar">
+      <div class="title">
+        <h2>BOSEN供应链管理系统</h2>
+        <div class="date" id="todayText"></div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" id="exportBtn">导出CSV</button>
+      <button class="btn" id="resetBtn">恢复示例</button>
+      <button class="btn primary" id="addBtn">新增批次</button>
+      <button class="btn outline-danger" id="logoutBtn">注销</button>
+    </header>
+
+    <div class="content">
+      <!-- 概览 -->
+      <section>
+        <div class="section-head">
+          <h3>概览</h3>
+          <span class="hint">按当前国家筛选统计</span>
+        </div>
+        <div class="stats" id="stats"></div>
+      </section>
+
+      <!-- 货物进程 -->
+      <section>
+        <div class="section-head">
+          <h3>货物进程</h3>
+          <span class="hint">从下单到目的国库存</span>
+        </div>
+        <div class="pipeline-card">
+          <div class="pipeline" id="pipeline"></div>
+        </div>
+      </section>
+
+      <!-- 批次明细 -->
+      <section class="list-wrap">
+        <div class="list-card">
+          <div class="section-head"><h3>批次明细</h3><span class="hint" id="listCount"></span></div>
+          <div class="filters">
+            <div class="field grow">
+              <label for="q">搜索</label>
+              <input id="q" placeholder="国家、订单号、供应商、设备、型号、柜号、备注">
+            </div>
+            <div class="field">
+              <label for="fStatus">状态</label>
+              <select id="fStatus"><option value="">全部</option></select>
+            </div>
+            <div class="field">
+              <label for="fCountry">国家</label>
+              <select id="fCountry"><option value="">全部国家</option></select>
+            </div>
+            <button class="btn" id="moreBtn">更多筛选</button>
+          </div>
+          <div class="more-filters" id="moreFilters">
+            <div class="field">
+              <label for="fTransport">运输方式</label>
+              <select id="fTransport"><option value="">全部</option><option>空运</option><option>海运</option></select>
+            </div>
+            <div class="field">
+              <label for="fSupplier">供应商</label>
+              <select id="fSupplier"><option value="">全部供应商</option></select>
+            </div>
+            <div class="field">
+              <label for="fOverdue">到达情况</label>
+              <select id="fOverdue"><option value="">全部</option><option value="overdue">已逾期</option><option value="ontime">未逾期</option></select>
+            </div>
+            <button class="btn" id="clearBtn">清除筛选</button>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>状态</th><th>国家</th><th>订单 / 批次</th><th>运输</th>
+                  <th>设备</th><th class="num">数量</th><th>当前位置</th><th>预计到达</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="detail-card" id="detail"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- 新增 / 编辑弹窗 -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="m-head">
+      <h3 id="modalTitle">新增批次</h3>
+      <button class="m-close" id="modalClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="m-body">
+      <div class="form-grid">
+        <div class="field"><label class="req" for="iPo">订单号</label><input id="iPo" placeholder="PO-2026-0001"></div>
+        <div class="field span2"><label for="iBatch">批次名称</label><input id="iBatch" placeholder="如：墨西哥7月空运1批次（可留空）"></div>
+        <div class="field"><label class="req" for="iStatus">状态</label><select id="iStatus"></select></div>
+        <div class="field"><label class="req" for="iCountry">国家 / 市场</label><input id="iCountry" list="countryList" placeholder="墨西哥"></div>
+        <datalist id="countryList"></datalist>
+        <div class="field"><label for="iTransport">运输方式</label><select id="iTransport"><option value="">—</option><option>空运</option><option>海运</option></select></div>
+        <div class="field span2"><label class="req" for="iDevice">设备名称 / 型号</label><input id="iDevice" placeholder="4G有线定位器 / GT06N"></div>
+        <div class="field"><label for="iType">设备类型</label><input id="iType" placeholder="有线GPS"></div>
+        <div class="field"><label class="req" for="iQty">数量（台/件）</label><input id="iQty" type="number" min="0" step="1" placeholder="0"></div>
+        <div class="field"><label for="iSupplier">供应商</label><input id="iSupplier" list="supplierList" placeholder="供应商名称"></div>
+        <datalist id="supplierList"></datalist>
+        <div class="field"><label for="iContainer">柜号 / 运单号</label><input id="iContainer" placeholder="海运柜号或空运单号"></div>
+        <div class="field"><label for="iLocation">当前位置</label><input id="iLocation" placeholder="工厂生产线 / 深圳仓 / 在途…"></div>
+        <div class="field"><label for="iOrderDate">下单日期</label><input id="iOrderDate" type="date"></div>
+        <div class="field"><label for="iEta">预计到达</label><input id="iEta" type="date"></div>
+        <div class="field span3"><label for="iNotes">备注</label><textarea id="iNotes" placeholder="验货、认证、SIM卡、异常情况等"></textarea></div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn danger left" id="deleteBtn" style="display:none">删除批次</button>
+      <button class="btn" id="cancelBtn">取消</button>
+      <button class="btn primary" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ================= 常量 ================= */
+const STORE_KEY = "bosen-scm-batches-v1";
+const USER_KEY  = "bosen-scm-user-v1";
+
+const STATUSES = [
+  { key: "pending", label: "已下单待生产", cls: "st-pending", num: "1",  sub: "国内工厂库存" },
+  { key: "making",  label: "已下单生产中", cls: "st-making",  num: "2",  sub: "工厂待完成数量" },
+  { key: "done",    label: "生产完成",     cls: "st-done",    num: "3",  sub: "待发运数量" },
+  { key: "air",     label: "空运在途",     cls: "st-air",     num: "4A", sub: "空运中数量" },
+  { key: "sea",     label: "海运在途",     cls: "st-sea",     num: "4B", sub: "海运中数量" },
+  { key: "stock",   label: "目的国库存",   cls: "st-stock",   num: "5",  sub: "本地可用数量" },
+];
+const stMap = Object.fromEntries(STATUSES.map(s => [s.key, s]));
+
+/* ================= 示例数据 ================= */
+function sampleData() {
+  const y = new Date().getFullYear();
+  const d = (m, day) => `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  return [
+    { id: uid(), po: `PO-${y}-0521`, batchName: "", status: "stock", country: "墨西哥",
+      device: "4G无线定位器 / T-90", type: "无线GPS", qty: 460, transport: "",
+      supplier: "深圳蓝驰科技", container: "", location: "墨西哥仓库 A区",
+      orderDate: d(5, 21), eta: d(7, 2), notes: "已完成清关入库，剩余库存可售。" },
+    { id: uid(), po: `PO-${y}-0608`, batchName: "", status: "pending", country: "哥伦比亚",
+      device: "双镜头行车记录仪 / DVR-X2", type: "行车记录仪", qty: 2000, transport: "",
+      supplier: "东莞骏视电子", container: "", location: "供应商仓库",
+      orderDate: d(6, 8), eta: d(7, 30), notes: "等待排产，预计7月中旬上线。" },
+    { id: uid(), po: `PO-${y}-0712`, batchName: "", status: "making", country: "墨西哥",
+      device: "4G有线定位器 / GT06N", type: "有线GPS", qty: 1200, transport: "",
+      supplier: "深圳蓝驰科技", container: "", location: "工厂生产线",
+      orderDate: d(7, 1), eta: d(8, 6), notes: "外壳已确认，等待SIM卡测试报告。" },
+    { id: uid(), po: `PO-${y}-0615`, batchName: "", status: "done", country: "智利",
+      device: "蓝牙Tag / TAG-BLE-01", type: "Tag", qty: 1500, transport: "",
+      supplier: "惠州普联智造", container: "", location: "深圳仓待发运",
+      orderDate: d(6, 15), eta: d(8, 12), notes: "待凑柜，计划与秘鲁订单同柜海运。" },
+    { id: uid(), po: `MX-AIR-${y}-07-01`, batchName: `墨西哥${new Date().getMonth() + 1}月空运1批次`, status: "air", country: "墨西哥",
+      device: "蓝驰设备 / NOM认证样机", type: "混合设备", qty: 24, transport: "空运",
+      supplier: "深圳蓝驰科技", container: "CX-8842-11", location: "待空运发货",
+      orderDate: d(7, 1), eta: "", notes: "认证样机加急，随附NOM认证文件。" },
+  ];
+}
+
+/* ================= 状态 ================= */
+let batches = load();
+let view = "all";          // all | 状态key
+let selectedId = null;
+let editingId = null;      // null = 新增
+
+const $ = id => document.getElementById(id);
+
+function uid() { return "b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) { const v = JSON.parse(raw); if (Array.isArray(v)) return v; }
+  } catch (e) {}
+  return sampleData();
+}
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify(batches)); }
+
+/* ================= 日期工具 ================= */
+function today0() { const t = new Date(); t.setHours(0, 0, 0, 0); return t; }
+function parseDate(s) { if (!s) return null; const d = new Date(s + "T00:00:00"); return isNaN(d) ? null : d; }
+function fmtMD(s) { const d = parseDate(s); return d ? `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}` : "–"; }
+function daysDiff(s) { const d = parseDate(s); if (!d) return null; return Math.round((d - today0()) / 86400000); }
+function etaText(b) {
+  if (b.status === "stock") {
+    return { text: "已入库", overdue: false };
+  }
+  const n = daysDiff(b.eta);
+  if (n === null) return { text: "–", overdue: false };
+  if (n < 0) return { text: `已逾期${-n}天`, overdue: true };
+  return { text: `${fmtMD(b.eta)} / ${n}天`, overdue: false };
+}
+
+/* ================= 登录 ================= */
+function getUser() { try { return JSON.parse(localStorage.getItem(USER_KEY)); } catch (e) { return null; } }
+function requireLogin() {
+  const u = getUser();
+  $("loginScreen").classList.toggle("open", !u);
+  $("footUser").textContent = u ? `当前用户：${u.name}（${u.role}）` : "";
+}
+$("loginBtn").onclick = () => {
+  const name = $("loginName").value.trim();
+  if (!name) { $("loginName").focus(); return; }
+  localStorage.setItem(USER_KEY, JSON.stringify({ name, role: $("loginRole").value }));
+  requireLogin();
+  toast(`欢迎，${name}`);
+};
+$("loginName").addEventListener("keydown", e => { if (e.key === "Enter") $("loginBtn").click(); });
+$("logoutBtn").onclick = () => {
+  localStorage.removeItem(USER_KEY);
+  $("loginName").value = "";
+  requireLogin();
+};
+
+/* ================= 筛选 ================= */
+function currentFilters() {
+  return {
+    q: $("q").value.trim().toLowerCase(),
+    status: view === "all" ? $("fStatus").value : view,
+    country: $("fCountry").value,
+    transport: $("fTransport").value,
+    supplier: $("fSupplier").value,
+    overdue: $("fOverdue").value,
+  };
+}
+function matches(b, f) {
+  if (f.status && b.status !== f.status) return false;
+  if (f.country && b.country !== f.country) return false;
+  if (f.transport && b.transport !== f.transport) return false;
+  if (f.supplier && b.supplier !== f.supplier) return false;
+  if (f.overdue === "overdue" && !etaText(b).overdue) return false;
+  if (f.overdue === "ontime" && etaText(b).overdue) return false;
+  if (f.q) {
+    const hay = [b.po, b.batchName, b.country, b.device, b.type, b.supplier, b.container, b.location, b.notes, stMap[b.status]?.label]
+      .join(" ").toLowerCase();
+    if (!hay.includes(f.q)) return false;
+  }
+  return true;
+}
+function filtered() { const f = currentFilters(); return batches.filter(b => matches(b, f)); }
+/* 概览、进程按国家（及搜索之外的更多筛选）统计，不受状态筛选影响 */
+function countryScoped() {
+  const f = currentFilters(); f.status = ""; f.q = ""; f.overdue = "";
+  return batches.filter(b => matches(b, f));
+}
+
+/* ================= 渲染 ================= */
+function fmtNum(n) { return Number(n || 0).toLocaleString("zh-CN"); }
+
+function renderNav() {
+  const nav = $("nav");
+  nav.innerHTML = "";
+  const items = [{ key: "all", label: "总览" }, ...STATUSES];
+  for (const it of items) {
+    const btn = document.createElement("button");
+    btn.className = view === it.key ? "active" : "";
+    const count = it.key === "all" ? batches.length : batches.filter(b => b.status === it.key).length;
+    btn.innerHTML = `<span>${it.label}</span><span class="count">${count}</span>`;
+    btn.onclick = () => { view = it.key; $("fStatus").value = it.key === "all" ? "" : it.key; renderAll(); };
+    nav.appendChild(btn);
+  }
+}
+
+function renderStats() {
+  const scoped = countryScoped();
+  const box = $("stats");
+  box.innerHTML = "";
+  for (const s of STATUSES) {
+    const rows = scoped.filter(b => b.status === s.key);
+    const qty = rows.reduce((a, b) => a + Number(b.qty || 0), 0);
+    const el = document.createElement("button");
+    el.className = "stat" + (view === s.key ? " active" : "");
+    el.innerHTML = `
+      <div class="label">${s.label}</div>
+      <div class="value">${fmtNum(qty)}</div>
+      <div class="sub">${rows.length}个批次 · ${s.sub}</div>`;
+    el.onclick = () => { view = view === s.key ? "all" : s.key; $("fStatus").value = view === "all" ? "" : view; renderAll(); };
+    box.appendChild(el);
+  }
+}
+
+function renderPipeline() {
+  const scoped = countryScoped();
+  const stage = key => {
+    const s = stMap[key];
+    const rows = scoped.filter(b => b.status === key);
+    const qty = rows.reduce((a, b) => a + Number(b.qty || 0), 0);
+    return `<div class="pipe-stage ${rows.length ? "" : "dim"} ${view === key ? "active" : ""}" data-key="${key}">
+      <span class="num">${s.num}</span>
+      <h4>${s.label}</h4>
+      <p>${rows.length} 个批次<br>${fmtNum(qty)} 台/件</p>
+    </div>`;
+  };
+  $("pipeline").innerHTML = `
+    ${stage("pending")}<div class="pipe-link"></div>
+    ${stage("making")}<div class="pipe-link"></div>
+    ${stage("done")}<div class="pipe-link"></div>
+    <div class="pipe-split">${stage("air")}${stage("sea")}</div>
+    <div class="pipe-link"></div>${stage("stock")}`;
+  $("pipeline").querySelectorAll(".pipe-stage").forEach(el => {
+    el.onclick = () => {
+      const k = el.dataset.key;
+      view = view === k ? "all" : k;
+      $("fStatus").value = view === "all" ? "" : view;
+      renderAll();
+    };
+  });
+}
+
+function renderTable() {
+  const rows = filtered();
+  $("listCount").textContent = `共 ${rows.length} 个批次 · ${fmtNum(rows.reduce((a, b) => a + Number(b.qty || 0), 0))} 台/件`;
+  const tb = $("tbody");
+  tb.innerHTML = "";
+  if (!rows.length) {
+    tb.innerHTML = `<tr><td colspan="8" class="empty">没有符合条件的批次，试试清除筛选或点击「新增批次」。</td></tr>`;
+    return;
+  }
+  const order = Object.fromEntries(STATUSES.map((s, i) => [s.key, i]));
+  rows.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9) || String(a.po).localeCompare(String(b.po)));
+  for (const b of rows) {
+    const s = stMap[b.status] || STATUSES[0];
+    const eta = etaText(b);
+    const tr = document.createElement("tr");
+    if (b.id === selectedId) tr.className = "selected";
+    tr.innerHTML = `
+      <td><span class="badge ${s.cls}">${s.label}</span></td>
+      <td>${esc(b.country) || "–"}</td>
+      <td><div class="main-line">${esc(b.batchName || b.po)}</div><div class="sub-line">${esc(b.batchName ? b.po : (b.supplier || ""))}</div></td>
+      <td>${esc(b.transport) || "–"}</td>
+      <td><div class="main-line">${esc(b.device)}</div><div class="sub-line">${esc(b.type || "")}</div></td>
+      <td class="num">${fmtNum(b.qty)}</td>
+      <td>${esc(b.location) || "–"}</td>
+      <td class="${eta.overdue ? "overdue" : ""}">${eta.text}</td>`;
+    tr.onclick = () => { selectedId = b.id; renderTable(); renderDetail(); };
+    tb.appendChild(tr);
+  }
+}
+
+function renderDetail() {
+  const box = $("detail");
+  const b = batches.find(x => x.id === selectedId);
+  if (!b) {
+    box.innerHTML = `<div class="d-empty">点击左侧表格中的批次<br>查看详情与操作</div>`;
+    return;
+  }
+  const s = stMap[b.status] || STATUSES[0];
+  const idx = STATUSES.findIndex(x => x.key === b.status);
+  const eta = etaText(b);
+  const item = (k, v, wide) => `<div class="d-item${wide ? " wide" : ""}"><div class="k">${k}</div><div class="v">${v || "–"}</div></div>`;
+  /* 空运/海运是并行分支：生产完成后按运输方式进入 4A 或 4B */
+  let nextKey = null;
+  if (b.status === "pending") nextKey = "making";
+  else if (b.status === "making") nextKey = "done";
+  else if (b.status === "done") nextKey = (b.transport === "海运") ? "sea" : "air";
+  else if (b.status === "air" || b.status === "sea") nextKey = "stock";
+  box.innerHTML = `
+    <div class="d-head"><h4>${esc(b.po)}</h4><button class="btn" id="dEdit">编辑</button></div>
+    <div class="d-status"><span class="badge ${s.cls}">${s.label}</span></div>
+    <div class="d-grid">
+      ${item("设备", esc(b.device) + (b.type ? `<br><span style="font-weight:400;color:var(--ink-3)">${esc(b.type)}</span>` : ""))}
+      ${item("国家 / 市场", esc(b.country))}
+      ${item("批次名称", esc(b.batchName))}
+      ${item("运输方式", esc(b.transport))}
+      ${item("数量", fmtNum(b.qty))}
+      ${item("当前位置", esc(b.location))}
+      ${item("供应商", esc(b.supplier))}
+      ${item("柜号 / 运单号", esc(b.container))}
+      ${item("下单日期", b.orderDate || "–")}
+      ${item("预计到达", eta.overdue ? `<span class="overdue">${eta.text}</span>` : (b.eta || "–"))}
+      ${item("备注", esc(b.notes), true)}
+    </div>
+    <div class="d-actions">
+      ${nextKey ? `<button class="btn primary" id="dNext">推进到「${stMap[nextKey].label}」</button>` : ""}
+    </div>`;
+  $("dEdit").onclick = () => openModal(b.id);
+  const nextBtn = $("dNext");
+  if (nextBtn) nextBtn.onclick = () => {
+    b.status = nextKey;
+    if (nextKey === "air" && !b.transport) b.transport = "空运";
+    save(); renderAll();
+    toast(`已推进到「${stMap[nextKey].label}」`);
+  };
+}
+
+function renderFilterOptions() {
+  const fill = (sel, values, keepAllLabel) => {
+    const cur = sel.value;
+    sel.innerHTML = "";
+    const all = document.createElement("option");
+    all.value = ""; all.textContent = keepAllLabel;
+    sel.appendChild(all);
+    for (const v of values) {
+      const o = document.createElement("option");
+      o.value = v.value ?? v; o.textContent = v.label ?? v;
+      sel.appendChild(o);
+    }
+    sel.value = [...sel.options].some(o => o.value === cur) ? cur : "";
+  };
+  fill($("fStatus"), STATUSES.map(s => ({ value: s.key, label: s.label })), "全部");
+  fill($("fCountry"), uniq(batches.map(b => b.country)), "全部国家");
+  fill($("fSupplier"), uniq(batches.map(b => b.supplier)), "全部供应商");
+  /* 运输方式选项固定，仅同步 datalist */
+  $("countryList").innerHTML = uniq(batches.map(b => b.country)).map(c => `<option value="${esc(c)}">`).join("");
+  $("supplierList").innerHTML = uniq(batches.map(b => b.supplier)).map(c => `<option value="${esc(c)}">`).join("");
+}
+function uniq(arr) { return [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b, "zh")); }
+
+function renderAll() {
+  renderFilterOptions();
+  renderNav();
+  renderStats();
+  renderPipeline();
+  renderTable();
+  renderDetail();
+}
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+/* ================= 弹窗 ================= */
+function openModal(id) {
+  editingId = id || null;
+  const b = id ? batches.find(x => x.id === id) : null;
+  $("modalTitle").textContent = b ? `编辑批次 · ${b.po}` : "新增批次";
+  $("deleteBtn").style.display = b ? "" : "none";
+  const st = $("iStatus");
+  st.innerHTML = STATUSES.map(s => `<option value="${s.key}">${s.num} ${s.label}</option>`).join("");
+  $("iPo").value = b?.po || "";
+  $("iBatch").value = b?.batchName || "";
+  st.value = b?.status || "pending";
+  $("iCountry").value = b?.country || "";
+  $("iTransport").value = b?.transport || "";
+  $("iDevice").value = b?.device || "";
+  $("iType").value = b?.type || "";
+  $("iQty").value = b?.qty ?? "";
+  $("iSupplier").value = b?.supplier || "";
+  $("iContainer").value = b?.container || "";
+  $("iLocation").value = b?.location || "";
+  $("iOrderDate").value = b?.orderDate || new Date().toISOString().slice(0, 10);
+  $("iEta").value = b?.eta || "";
+  $("iNotes").value = b?.notes || "";
+  $("modalOverlay").classList.add("open");
+  $("iPo").focus();
+}
+function closeModal() { $("modalOverlay").classList.remove("open"); }
+
+$("saveBtn").onclick = () => {
+  const po = $("iPo").value.trim();
+  const country = $("iCountry").value.trim();
+  const device = $("iDevice").value.trim();
+  const qty = Number($("iQty").value);
+  if (!po) { toast("请填写订单号"); $("iPo").focus(); return; }
+  if (!country) { toast("请填写国家 / 市场"); $("iCountry").focus(); return; }
+  if (!device) { toast("请填写设备名称"); $("iDevice").focus(); return; }
+  if (!Number.isFinite(qty) || qty < 0) { toast("请填写正确的数量"); $("iQty").focus(); return; }
+  const data = {
+    po, country, device,
+    batchName: $("iBatch").value.trim(),
+    status: $("iStatus").value,
+    transport: $("iTransport").value,
+    type: $("iType").value.trim(),
+    qty,
+    supplier: $("iSupplier").value.trim(),
+    container: $("iContainer").value.trim(),
+    location: $("iLocation").value.trim(),
+    orderDate: $("iOrderDate").value,
+    eta: $("iEta").value,
+    notes: $("iNotes").value.trim(),
+  };
+  if (editingId) {
+    Object.assign(batches.find(x => x.id === editingId), data);
+    toast("批次已更新");
+  } else {
+    const b = { id: uid(), ...data };
+    batches.push(b);
+    selectedId = b.id;
+    toast("批次已创建");
+  }
+  save(); closeModal(); renderAll();
+};
+$("deleteBtn").onclick = () => {
+  const b = batches.find(x => x.id === editingId);
+  if (!b || !confirm(`确定删除批次「${b.po}」？此操作不可撤销。`)) return;
+  batches = batches.filter(x => x.id !== editingId);
+  if (selectedId === editingId) selectedId = null;
+  save(); closeModal(); renderAll();
+  toast("批次已删除");
+};
+$("cancelBtn").onclick = closeModal;
+$("modalClose").onclick = closeModal;
+$("modalOverlay").addEventListener("mousedown", e => { if (e.target === e.currentTarget) closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+/* ================= 顶栏动作 ================= */
+$("addBtn").onclick = () => openModal(null);
+$("resetBtn").onclick = () => {
+  if (!confirm("恢复示例数据会覆盖当前所有批次，确定继续？")) return;
+  batches = sampleData();
+  selectedId = null; view = "all";
+  save(); renderAll();
+  toast("已恢复示例数据");
+};
+$("exportBtn").onclick = () => {
+  const cols = [
+    ["状态", b => stMap[b.status]?.label || b.status], ["国家", b => b.country],
+    ["订单号", b => b.po], ["批次名称", b => b.batchName], ["运输方式", b => b.transport],
+    ["设备", b => b.device], ["设备类型", b => b.type], ["数量", b => b.qty],
+    ["供应商", b => b.supplier], ["柜号/运单号", b => b.container], ["当前位置", b => b.location],
+    ["下单日期", b => b.orderDate], ["预计到达", b => b.eta], ["到达情况", b => etaText(b).text],
+    ["备注", b => b.notes],
+  ];
+  const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const lines = [cols.map(c => q(c[0])).join(",")];
+  for (const b of filtered()) lines.push(cols.map(c => q(c[1](b))).join(","));
+  const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `供应链批次_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast(`已导出 ${filtered().length} 条记录`);
+};
+
+/* ================= 筛选事件 ================= */
+$("q").addEventListener("input", () => { renderTable(); });
+$("fStatus").addEventListener("change", () => { view = $("fStatus").value || "all"; renderAll(); });
+for (const id of ["fCountry", "fTransport", "fSupplier", "fOverdue"]) {
+  $(id).addEventListener("change", renderAll);
+}
+$("moreBtn").onclick = () => $("moreFilters").classList.toggle("open");
+$("clearBtn").onclick = () => {
+  $("q").value = "";
+  for (const id of ["fStatus", "fCountry", "fTransport", "fSupplier", "fOverdue"]) $(id).value = "";
+  view = "all";
+  renderAll();
+};
+
+/* ================= 其他 ================= */
+let toastTimer;
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+(function init() {
+  const now = new Date();
+  const week = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"][now.getDay()];
+  $("todayText").textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${week}`;
+  requireLogin();
+  renderAll();
+})();
+</script>
+</body>
+</html>
