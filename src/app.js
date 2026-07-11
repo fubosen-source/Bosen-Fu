@@ -465,8 +465,13 @@ function normalizeEs(s) {
 function deaccent(ch) {
   return ch.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
+// 打字/书写练习的目标: 去掉标点，只留字母
+function practiceText(s) {
+  return s.replace(/[¿?¡!.,;:…"'“”‘’()—-]/g, "").replace(/\s+/g, " ").trim();
+}
 function charMatches(typed, target) {
   if (!typed || !target) return false;
+  if (/\s/.test(typed) && /\s/.test(target)) return true;
   if (typed.toLowerCase() === target.toLowerCase()) return true;
   if (deaccent(typed) === deaccent(target)) return true;
   if (target === "¿" && typed === "?") return true;
@@ -584,7 +589,7 @@ function startSpelling(unit) {
         const fontStack = `500 SIZEpx ${themeColor("--font") || '-apple-system, "Helvetica Neue", sans-serif'}`;
         let size = (base - top) * 1.05;
         ctx.font = fontStack.replace("SIZE", size);
-        while (ctx.measureText(w.es).width > cw - 50 && size > 18) {
+        while (ctx.measureText(practiceText(w.es)).width > cw - 50 && size > 18) {
           size -= 4;
           ctx.font = fontStack.replace("SIZE", size);
         }
@@ -592,7 +597,7 @@ function startSpelling(unit) {
         ctx.globalAlpha = 0.28;
         ctx.textAlign = "center";
         ctx.textBaseline = "alphabetic";
-        ctx.fillText(w.es, cw / 2, base - 4);
+        ctx.fillText(practiceText(w.es), cw / 2, base - 4);
         ctx.globalAlpha = 1;
       }
       // 笔迹
@@ -651,7 +656,7 @@ function startSpelling(unit) {
 
   // ---------- 四线格打字 (默认): 键入的字母"写"进四线格 ----------
   function renderType(w, tools, area) {
-    const target = w.es;
+    const target = practiceText(w.es);
     const clearBtn = el("button", "tool-btn warn", "🧹 Clear");
     const playBtn = el("button", "tool-btn", "🔊 发音");
     const guideBtn = el("button", "tool-btn", showGuide ? "👁 描红: 开" : "👁 描红: 关");
@@ -751,7 +756,7 @@ function startSpelling(unit) {
     });
     writeBtn.addEventListener("click", () => { mode = "write"; show(); });
 
-    area.append(el("p", "hint", "英文键盘直接打: a=á n=ñ u=ü, ? 代替 ¿, ! 代替 ¡ (重音会自动补上) · 打错闪红自动忽略 · 描红关掉就是默写"));
+    area.append(el("p", "hint", "英文键盘直接打: a=á n=ñ u=ü，重音自动补上，标点不用打 · 打错闪红自动忽略 · 描红关掉就是默写"));
     input.focus();
   }
 
@@ -788,7 +793,7 @@ function startTypeDrill(unit) {
     setProgress(step);
     const w = words[wi];
     const st = DRILL_STAGES[stage];
-    const target = w.es;
+    const target = practiceText(w.es);
     body.innerHTML = "";
 
     const prompt = el("div", "spell-prompt");
@@ -817,7 +822,7 @@ function startTypeDrill(unit) {
 
     const input = el("input", "spell-input");
     input.type = "text";
-    input.placeholder = st.key === "recall" ? "凭记忆输入… (a=á n=ñ ?=¿)" : "在这里打字… (a=á n=ñ ?=¿)";
+    input.placeholder = st.key === "recall" ? "凭记忆输入… (a=á n=ñ, 标点不用打)" : "在这里打字… (a=á n=ñ, 标点不用打)";
     input.autocapitalize = "off";
     input.autocomplete = "off";
     input.spellcheck = false;
