@@ -461,6 +461,18 @@ function startPicture(unit) {
 function normalizeEs(s) {
   return s.toLowerCase().trim().replace(/\s+/g, " ");
 }
+// 英文键盘友好匹配: a=á n=ñ u=ü, ?=¿ !=¡
+function deaccent(ch) {
+  return ch.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+function charMatches(typed, target) {
+  if (!typed || !target) return false;
+  if (typed.toLowerCase() === target.toLowerCase()) return true;
+  if (deaccent(typed) === deaccent(target)) return true;
+  if (target === "¿" && typed === "?") return true;
+  if (target === "¡" && typed === "!") return true;
+  return false;
+}
 function stripArticle(s) {
   return s.replace(/^(el|la|los|las)\s+/i, "");
 }
@@ -699,7 +711,7 @@ function startSpelling(unit) {
       // 只保留与目标匹配的前缀，打错的字符丢弃并闪红提示
       let matched = 0;
       while (matched < raw.length && matched < target.length &&
-             raw[matched].toLowerCase() === target[matched].toLowerCase()) {
+             charMatches(raw[matched], target[matched])) {
         matched++;
       }
       if (matched < raw.length) {
@@ -739,7 +751,7 @@ function startSpelling(unit) {
     });
     writeBtn.addEventListener("click", () => { mode = "write"; show(); });
 
-    area.append(el("p", "hint", "直接打字，字母会写进四线格 · 打错的键会闪红并自动忽略 · 描红关掉就是默写"));
+    area.append(el("p", "hint", "英文键盘直接打: a=á n=ñ u=ü, ? 代替 ¿, ! 代替 ¡ (重音会自动补上) · 打错闪红自动忽略 · 描红关掉就是默写"));
     input.focus();
   }
 
@@ -805,7 +817,7 @@ function startTypeDrill(unit) {
 
     const input = el("input", "spell-input");
     input.type = "text";
-    input.placeholder = st.key === "recall" ? "凭记忆输入…" : "在这里打字…";
+    input.placeholder = st.key === "recall" ? "凭记忆输入… (a=á n=ñ ?=¿)" : "在这里打字… (a=á n=ñ ?=¿)";
     input.autocapitalize = "off";
     input.autocomplete = "off";
     input.spellcheck = false;
@@ -849,7 +861,7 @@ function startTypeDrill(unit) {
         const s = chSpans[i];
         s.classList.remove("ok", "bad");
         if (i < val.length) {
-          if (val[i].toLowerCase() === s.dataset.ch.toLowerCase()) {
+          if (charMatches(val[i], s.dataset.ch)) {
             s.classList.add("ok");
             s.textContent = s.dataset.ch;   // 打对的字母实时揭开
           } else {
@@ -862,7 +874,10 @@ function startTypeDrill(unit) {
         }
       }
       // 打错(当前前缀不匹配)时标记失误
-      const prefixOk = target.toLowerCase().startsWith(val.toLowerCase());
+      let prefixOk = val.length <= target.length;
+      for (let i = 0; prefixOk && i < val.length; i++) {
+        if (!charMatches(val[i], target[i])) prefixOk = false;
+      }
       input.classList.toggle("bad", !prefixOk && val.length > 0);
       if (!prefixOk && clean) { clean = false; misses++; }
       if (allOk && val.length === target.length && !done) {
