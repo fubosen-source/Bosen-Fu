@@ -256,6 +256,28 @@ body[data-theme="noche"] .spell-input.ok { background: #16463a; }
 }
 .canvas-wrap canvas { display: block; touch-action: none; cursor: crosshair; }
 
+/* 四线格打字 */
+.ruled-box {
+  position: relative; height: 230px; overflow: hidden; cursor: text;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.rline { position: absolute; left: 14px; right: 14px; border-top: 1px solid var(--line); }
+.rline.top { top: 18%; }
+.rline.mid { top: 50%; border-top-style: dashed; }
+.rline.base { top: 82%; }
+.ruled-letters {
+  position: absolute; left: 22px; right: 22px; bottom: calc(18% - 4px);
+  display: flex; justify-content: center; white-space: pre;
+  font-family: "Chalkboard SE", "Marker Felt", "Comic Sans MS", cursive;
+  line-height: .95; font-size: 88px; user-select: none;
+}
+.r-ch { color: var(--ink2); opacity: .3; transition: color .12s, opacity .12s; }
+.r-ch.typed { color: var(--ink); opacity: 1; }
+.r-ch.flash { color: #e03131; opacity: 1; animation: shake .3s; }
+.ruled-box.hide-template .r-ch:not(.typed) { opacity: 0; }
+.ghost-input { position: absolute; top: 0; left: 0; width: 10px; opacity: 0; border: none; }
+
 /* 打字强化 */
 .stage-pill {
   display: inline-block; margin-top: 10px;

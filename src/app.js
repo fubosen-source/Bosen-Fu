@@ -453,7 +453,7 @@ function startSpelling(unit) {
   const back = () => renderUnit(unit);
   const words = shuffle(unit.words);
   let idx = 0;
-  let mode = "write";     // write = 手写画布, type = 键盘拼写
+  let mode = "type";      // type = 四线格打字(默认), write = 手写画布
   let showGuide = true;   // 描红模板
   const { body, setProgress } = activityShell("✍️ 书写练习", back, words.length);
 
@@ -620,70 +620,109 @@ function startSpelling(unit) {
     area.append(el("p", "hint", "在四线格上用鼠标 / 触控板临摹这个词 · 点 ⌨️ Type 切换键盘拼写"));
   }
 
-  // ---------- 键盘拼写 ----------
+  // ---------- 四线格打字 (默认): 键入的字母"写"进四线格 ----------
   function renderType(w, tools, area) {
+    const target = w.es;
+    const clearBtn = el("button", "tool-btn warn", "🧹 Clear");
     const playBtn = el("button", "tool-btn", "🔊 发音");
-    const revealBtn = el("button", "tool-btn", "💡 看答案");
+    const guideBtn = el("button", "tool-btn", showGuide ? "👁 描红: 开" : "👁 描红: 关");
     const writeBtn = el("button", "tool-btn", "✍️ 手写");
-    tools.append(playBtn, revealBtn, writeBtn);
+    tools.append(clearBtn, playBtn, guideBtn, writeBtn);
 
-    const input = el("input", "spell-input");
+    const box = el("div", "ruled-box" + (showGuide ? "" : " hide-template"));
+    box.append(el("div", "rline top"), el("div", "rline mid"), el("div", "rline base"));
+    const letters = el("div", "ruled-letters");
+    const spans = [];
+    for (const ch of target) {
+      const s = el("span", "r-ch", ch === " " ? "&nbsp;" : esc(ch));
+      s.dataset.ch = ch;
+      spans.push(s);
+      letters.append(s);
+    }
+    box.append(letters);
+
+    const input = el("input", "ghost-input");
     input.type = "text";
-    input.placeholder = "输入西班牙语…";
     input.autocapitalize = "off";
     input.autocomplete = "off";
     input.spellcheck = false;
-    area.append(input);
+    box.append(input);
+    box.addEventListener("mousedown", e => { e.preventDefault(); input.focus(); });
+    area.append(box);
+
+    // 字号自适应宽度
+    requestAnimationFrame(() => {
+      let size = 88;
+      letters.style.fontSize = size + "px";
+      while (letters.scrollWidth > box.clientWidth - 44 && size > 20) {
+        size -= 4;
+        letters.style.fontSize = size + "px";
+      }
+    });
 
     const accents = el("div", "accent-row");
+    accents.style.marginTop = "12px";
     for (const ch of SPECIAL_CHARS) {
       const k = el("button", "accent-key", ch);
+      k.addEventListener("mousedown", e => e.preventDefault());
       k.addEventListener("click", () => {
-        const pos = input.selectionStart ?? input.value.length;
-        input.value = input.value.slice(0, pos) + ch + input.value.slice(input.selectionEnd ?? pos);
+        input.value += ch;
+        input.dispatchEvent(new Event("input"));
         input.focus();
-        input.setSelectionRange(pos + 1, pos + 1);
       });
       accents.append(k);
     }
     area.append(accents);
 
-    const answer = el("div", "spell-answer", "");
-    area.append(answer);
-    const checkRow = el("div", "flash-controls");
-    const checkBtn = el("button", "ctrl-btn primary", "检查 ⏎");
-    checkRow.append(checkBtn);
-    area.append(checkRow);
+    let clean = true, done = false, flashTimer = null;
 
-    let firstTry = true;
-    function check() {
-      const got = normalizeEs(input.value);
-      const want = normalizeEs(w.es);
-      const ok = got === want || stripArticle(got) === stripArticle(want);
-      if (ok) {
-        input.classList.remove("bad");
-        input.classList.add("ok");
-        input.disabled = true;
-        answer.innerHTML = `✅ <b>${esc(w.es)}</b> — ${esc(w.zh)}`;
-        markResult(w, firstTry);
-        speak(w.es);
-        setTimeout(() => { idx++; show(); }, 950);
-      } else {
-        input.classList.add("bad");
-        if (firstTry) { markResult(w, false); }
-        firstTry = false;
-        setTimeout(() => input.classList.remove("bad"), 450);
+    function paint() {
+      if (done) return;
+      const raw = input.value;
+      // 只保留与目标匹配的前缀，打错的字符丢弃并闪红提示
+      let matched = 0;
+      while (matched < raw.length && matched < target.length &&
+             raw[matched].toLowerCase() === target[matched].toLowerCase()) {
+        matched++;
+      }
+      if (matched < raw.length) {
+        // 有打错的字符
+        if (clean) { clean = false; }
+        const s = spans[matched];
+        if (s) {
+          s.classList.add("flash");
+          clearTimeout(flashTimer);
+          flashTimer = setTimeout(() => s.classList.remove("flash"), 380);
+        }
+        input.value = raw.slice(0, matched);
+      }
+      spans.forEach((s, i) => s.classList.toggle("typed", i < matched));
+      if (matched === target.length) {
+        done = true;
+        input.blur();
+        box.classList.remove("hide-template");
+        markResult(w, clean);
+        speak(target);
+        setTimeout(() => { idx++; show(); }, 900);
       }
     }
-    checkBtn.addEventListener("click", check);
-    revealBtn.addEventListener("click", () => {
-      answer.innerHTML = `💡 答案: <b>${esc(w.es)}</b>`;
-      if (firstTry) { markResult(w, false); firstTry = false; }
+
+    input.addEventListener("input", paint);
+    clearBtn.addEventListener("click", () => {
+      input.value = "";
+      spans.forEach(s => s.classList.remove("typed", "flash"));
+      input.focus();
     });
-    input.addEventListener("keydown", e => { if (e.key === "Enter") check(); });
-    playBtn.addEventListener("click", () => speak(w.es));
+    playBtn.addEventListener("click", () => speak(target));
+    guideBtn.addEventListener("click", () => {
+      showGuide = !showGuide;
+      guideBtn.textContent = showGuide ? "👁 描红: 开" : "👁 描红: 关";
+      box.classList.toggle("hide-template", !showGuide);
+      input.focus();
+    });
     writeBtn.addEventListener("click", () => { mode = "write"; show(); });
 
+    area.append(el("p", "hint", "直接打字，字母会写进四线格 · 打错的键会闪红并自动忽略 · 描红关掉就是默写"));
     input.focus();
   }
 
