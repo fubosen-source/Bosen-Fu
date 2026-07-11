@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PalabraPad · 墨西哥西语</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="papel">
+  <div class="app">
+    <nav class="sidebar">
+      <div class="logo">
+        <span class="logo-emoji">🇲🇽</span>
+        <div class="logo-text">
+          <strong>PalabraPad</strong>
+          <small>墨西哥西语</small>
+        </div>
+      </div>
+      <button class="nav-btn active" data-nav="home"><span>🏠</span>课程单元</button>
+      <button class="nav-btn" data-nav="review"><span>🔁</span>每日复习<em id="review-badge" class="badge hidden">0</em></button>
+      <button class="nav-btn" data-nav="custom"><span>✏️</span>自定义课程</button>
+      <button class="nav-btn" data-nav="settings"><span>⚙️</span>设置</button>
+      <div class="sidebar-footer">
+        <div class="stat-line">📚 已学 <b id="stat-learned">0</b> 词</div>
+        <div class="stat-line">⭐ 掌握 <b id="stat-mastered">0</b> 词</div>
+      </div>
+    </nav>
+
+    <main class="main" id="main"></main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

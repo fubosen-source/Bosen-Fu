@@ -1,0 +1,29 @@
+{
+  "name": "palabrapad",
+  "productName": "PalabraPad",
+  "version": "1.0.0",
+  "description": "墨西哥西班牙语学习 App (macOS) — 借鉴 ScriptPad 的学习方式",
+  "main": "main.js",
+  "author": "Bosen Fu",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.bosenfu.palabrapad",
+    "productName": "PalabraPad",
+    "files": ["main.js", "src/**/*"],
+    "mac": {
+      "category": "public.app-category.education",
+      "target": ["dmg", "zip"],
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "跟读对比功能需要使用麦克风录制你的发音。"
+      }
+    }
+  }
+}
