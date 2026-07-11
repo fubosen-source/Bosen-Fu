@@ -179,6 +179,16 @@
   .badge.st-sea     { background: var(--st-sea-bg);     color: var(--st-sea-fg); }
   .badge.st-stock   { background: var(--st-stock-bg);   color: var(--st-stock-fg); }
 
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--brand); }
+  th.sortable .arrow { color: var(--brand); font-size: 10px; margin-left: 2px; }
+
+  .overdue-chip {
+    border: 1px solid #fecaca; background: #fef2f2; color: var(--danger);
+    font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px; margin-right: 10px;
+  }
+  .overdue-chip:hover { background: #fee2e2; }
+
   /* ========== 详情侧栏 ========== */
   .detail-card { padding: 18px; position: sticky; top: 84px; }
   .detail-card .d-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -190,6 +200,20 @@
   .d-item.wide { grid-column: 1 / -1; }
   .d-item .k { font-size: 11px; color: var(--ink-3); }
   .d-item .v { font-size: 13px; font-weight: 600; margin-top: 3px; word-break: break-all; line-height: 1.5; }
+  .d-tl { margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .d-tl .k { font-size: 11px; color: var(--ink-3); margin-bottom: 10px; }
+  .tl-item { display: flex; gap: 8px; font-size: 12px; position: relative; padding: 0 0 12px 16px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before {
+    content: ""; position: absolute; left: 3px; top: 4px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--ink-3);
+  }
+  .tl-item:last-child::before { background: var(--brand); }
+  .tl-item::after { content: ""; position: absolute; left: 6px; top: 14px; bottom: -1px; width: 1px; background: var(--line); }
+  .tl-item:last-child::after { display: none; }
+  .tl-item .tl-label { font-weight: 600; }
+  .tl-item .tl-date { color: var(--ink-3); margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
   .d-actions { display: flex; gap: 8px; margin-top: 12px; }
   .d-actions .btn { flex: 1; text-align: center; }
   .d-empty { color: var(--ink-3); font-size: 13px; text-align: center; padding: 40px 10px; line-height: 1.8; }
@@ -311,7 +335,7 @@
       <section>
         <div class="section-head">
           <h3>概览</h3>
-          <span class="hint">按当前国家筛选统计</span>
+          <span class="hint"><button class="overdue-chip" id="overdueChip" style="display:none"></button>按当前国家筛选统计</span>
         </div>
         <div class="stats" id="stats"></div>
       </section>
@@ -366,7 +390,10 @@
               <thead>
                 <tr>
                   <th>状态</th><th>国家</th><th>订单 / 批次</th><th>运输</th>
-                  <th>设备</th><th class="num">数量</th><th>当前位置</th><th>预计到达</th>
+                  <th>设备</th>
+                  <th class="num sortable" data-sort="qty">数量<span class="arrow"></span></th>
+                  <th>当前位置</th>
+                  <th class="sortable" data-sort="eta">预计到达<span class="arrow"></span></th>
                 </tr>
               </thead>
               <tbody id="tbody"></tbody>
@@ -438,27 +465,33 @@ const stMap = Object.fromEntries(STATUSES.map(s => [s.key, s]));
 function sampleData() {
   const y = new Date().getFullYear();
   const d = (m, day) => `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  const h = (...pairs) => pairs.map(([status, at]) => ({ status, at }));
   return [
     { id: uid(), po: `PO-${y}-0521`, batchName: "", status: "stock", country: "墨西哥",
-      device: "4G无线定位器 / T-90", type: "无线GPS", qty: 460, transport: "",
+      device: "4G无线定位器 / T-90", type: "无线GPS", qty: 460, transport: "海运",
       supplier: "深圳蓝驰科技", container: "", location: "墨西哥仓库 A区",
-      orderDate: d(5, 21), eta: d(7, 2), notes: "已完成清关入库，剩余库存可售。" },
+      orderDate: d(5, 21), eta: d(7, 2), notes: "已完成清关入库，剩余库存可售。",
+      history: h(["pending", d(5, 21)], ["making", d(5, 26)], ["done", d(6, 12)], ["sea", d(6, 14)], ["stock", d(7, 2)]) },
     { id: uid(), po: `PO-${y}-0608`, batchName: "", status: "pending", country: "哥伦比亚",
       device: "双镜头行车记录仪 / DVR-X2", type: "行车记录仪", qty: 2000, transport: "",
       supplier: "东莞骏视电子", container: "", location: "供应商仓库",
-      orderDate: d(6, 8), eta: d(7, 30), notes: "等待排产，预计7月中旬上线。" },
+      orderDate: d(6, 8), eta: d(7, 30), notes: "等待排产，预计7月中旬上线。",
+      history: h(["pending", d(6, 8)]) },
     { id: uid(), po: `PO-${y}-0712`, batchName: "", status: "making", country: "墨西哥",
       device: "4G有线定位器 / GT06N", type: "有线GPS", qty: 1200, transport: "",
       supplier: "深圳蓝驰科技", container: "", location: "工厂生产线",
-      orderDate: d(7, 1), eta: d(8, 6), notes: "外壳已确认，等待SIM卡测试报告。" },
+      orderDate: d(7, 1), eta: d(8, 6), notes: "外壳已确认，等待SIM卡测试报告。",
+      history: h(["pending", d(7, 1)], ["making", d(7, 6)]) },
     { id: uid(), po: `PO-${y}-0615`, batchName: "", status: "done", country: "智利",
       device: "蓝牙Tag / TAG-BLE-01", type: "Tag", qty: 1500, transport: "",
       supplier: "惠州普联智造", container: "", location: "深圳仓待发运",
-      orderDate: d(6, 15), eta: d(8, 12), notes: "待凑柜，计划与秘鲁订单同柜海运。" },
+      orderDate: d(6, 15), eta: d(8, 12), notes: "待凑柜，计划与秘鲁订单同柜海运。",
+      history: h(["pending", d(6, 15)], ["making", d(6, 20)], ["done", d(7, 8)]) },
     { id: uid(), po: `MX-AIR-${y}-07-01`, batchName: `墨西哥${new Date().getMonth() + 1}月空运1批次`, status: "air", country: "墨西哥",
       device: "蓝驰设备 / NOM认证样机", type: "混合设备", qty: 24, transport: "空运",
       supplier: "深圳蓝驰科技", container: "CX-8842-11", location: "待空运发货",
-      orderDate: d(7, 1), eta: "", notes: "认证样机加急，随附NOM认证文件。" },
+      orderDate: d(7, 1), eta: "", notes: "认证样机加急，随附NOM认证文件。",
+      history: h(["pending", d(7, 1)], ["making", d(7, 2)], ["done", d(7, 6)], ["air", d(7, 8)]) },
   ];
 }
 
@@ -467,6 +500,8 @@ let batches = load();
 let view = "all";          // all | 状态key
 let selectedId = null;
 let editingId = null;      // null = 新增
+let sortKey = null;        // null(默认按状态) | qty | eta
+let sortDir = 1;           // 1 升序 | -1 降序
 
 const $ = id => document.getElementById(id);
 
@@ -474,9 +509,24 @@ function uid() { return "b" + Date.now().toString(36) + Math.random().toString(3
 function load() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
-    if (raw) { const v = JSON.parse(raw); if (Array.isArray(v)) return v; }
+    if (raw) {
+      const v = JSON.parse(raw);
+      if (Array.isArray(v)) {
+        /* 兼容旧数据：补上状态历史字段 */
+        for (const b of v) if (!Array.isArray(b.history)) b.history = [];
+        return v;
+      }
+    }
   } catch (e) {}
   return sampleData();
+}
+function nowStamp() {
+  const d = new Date(), p = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function logStatus(b, status) {
+  if (!Array.isArray(b.history)) b.history = [];
+  b.history.push({ status, at: nowStamp() });
 }
 function save() { localStorage.setItem(STORE_KEY, JSON.stringify(batches)); }
 
@@ -565,7 +615,22 @@ function renderNav() {
   }
 }
 
+function renderOverdueChip() {
+  const scoped = countryScoped();
+  const n = scoped.filter(b => etaText(b).overdue).length;
+  const chip = $("overdueChip");
+  chip.style.display = n ? "" : "none";
+  if (n) chip.textContent = `⚠ ${n} 个批次已逾期`;
+}
+$("overdueChip").onclick = () => {
+  $("fOverdue").value = "overdue";
+  $("moreFilters").classList.add("open");
+  renderAll();
+  $("tbody").scrollIntoView({ behavior: "smooth", block: "center" });
+};
+
 function renderStats() {
+  renderOverdueChip();
   const scoped = countryScoped();
   const box = $("stats");
   box.innerHTML = "";
@@ -621,7 +686,24 @@ function renderTable() {
     return;
   }
   const order = Object.fromEntries(STATUSES.map((s, i) => [s.key, i]));
-  rows.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9) || String(a.po).localeCompare(String(b.po)));
+  if (sortKey === "qty") {
+    rows.sort((a, b) => (Number(a.qty || 0) - Number(b.qty || 0)) * sortDir);
+  } else if (sortKey === "eta") {
+    /* 无预计到达日期的批次始终排在最后 */
+    const t = b => { const d = parseDate(b.eta); return d ? d.getTime() : null; };
+    rows.sort((a, b) => {
+      const ta = t(a), tb = t(b);
+      if (ta === null && tb === null) return 0;
+      if (ta === null) return 1;
+      if (tb === null) return -1;
+      return (ta - tb) * sortDir;
+    });
+  } else {
+    rows.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9) || String(a.po).localeCompare(String(b.po)));
+  }
+  document.querySelectorAll("th.sortable").forEach(th => {
+    th.querySelector(".arrow").textContent = th.dataset.sort === sortKey ? (sortDir === 1 ? "▲" : "▼") : "";
+  });
   for (const b of rows) {
     const s = stMap[b.status] || STATUSES[0];
     const eta = etaText(b);
@@ -674,6 +756,7 @@ function renderDetail() {
       ${item("预计到达", eta.overdue ? `<span class="overdue">${eta.text}</span>` : (b.eta || "–"))}
       ${item("备注", esc(b.notes), true)}
     </div>
+    ${renderTimeline(b)}
     <div class="d-actions">
       ${nextKey ? `<button class="btn primary" id="dNext">推进到「${stMap[nextKey].label}」</button>` : ""}
     </div>`;
@@ -682,9 +765,22 @@ function renderDetail() {
   if (nextBtn) nextBtn.onclick = () => {
     b.status = nextKey;
     if (nextKey === "air" && !b.transport) b.transport = "空运";
+    if (nextKey === "sea" && !b.transport) b.transport = "海运";
+    logStatus(b, nextKey);
     save(); renderAll();
     toast(`已推进到「${stMap[nextKey].label}」`);
   };
+}
+
+function renderTimeline(b) {
+  const hist = Array.isArray(b.history) ? b.history : [];
+  if (!hist.length) return "";
+  const items = hist.map(h => `
+    <div class="tl-item">
+      <span class="tl-label">${esc(stMap[h.status]?.label || h.status)}</span>
+      <span class="tl-date">${esc(h.at)}</span>
+    </div>`).join("");
+  return `<div class="d-tl"><div class="k">状态历史</div>${items}</div>`;
 }
 
 function renderFilterOptions() {
@@ -774,10 +870,14 @@ $("saveBtn").onclick = () => {
     notes: $("iNotes").value.trim(),
   };
   if (editingId) {
-    Object.assign(batches.find(x => x.id === editingId), data);
+    const b = batches.find(x => x.id === editingId);
+    const statusChanged = b.status !== data.status;
+    Object.assign(b, data);
+    if (statusChanged) logStatus(b, data.status);
     toast("批次已更新");
   } else {
-    const b = { id: uid(), ...data };
+    const b = { id: uid(), ...data, history: [] };
+    logStatus(b, data.status);
     batches.push(b);
     selectedId = b.id;
     toast("批次已创建");
@@ -834,6 +934,16 @@ for (const id of ["fCountry", "fTransport", "fSupplier", "fOverdue"]) {
   $(id).addEventListener("change", renderAll);
 }
 $("moreBtn").onclick = () => $("moreFilters").classList.toggle("open");
+document.querySelectorAll("th.sortable").forEach(th => {
+  th.onclick = () => {
+    const k = th.dataset.sort;
+    /* 点击循环：升序 → 降序 → 恢复默认（按状态） */
+    if (sortKey !== k) { sortKey = k; sortDir = 1; }
+    else if (sortDir === 1) { sortDir = -1; }
+    else { sortKey = null; sortDir = 1; }
+    renderTable();
+  };
+});
 $("clearBtn").onclick = () => {
   $("q").value = "";
   for (const id of ["fStatus", "fCountry", "fTransport", "fSupplier", "fOverdue"]) $(id).value = "";
