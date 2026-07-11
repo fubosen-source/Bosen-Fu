@@ -234,6 +234,26 @@ body[data-theme="noche"] .spell-input.ok { background: #16463a; }
 .spell-answer { text-align: center; margin-top: 14px; font-size: 15px; color: var(--ink2); min-height: 22px; }
 .spell-answer b { color: var(--accent); }
 
+/* 打字强化 */
+.stage-pill {
+  display: inline-block; margin-top: 10px;
+  background: var(--hover); color: var(--ink2);
+  border: 1px solid var(--line); border-radius: 99px;
+  padding: 5px 14px; font-size: 12.5px; font-weight: 700;
+}
+.type-target {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 3px;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 16px 14px; margin-bottom: 14px; box-shadow: var(--shadow);
+  font-size: 27px; font-weight: 800; letter-spacing: 1px;
+  transition: filter .25s;
+}
+.type-target.masked { filter: blur(9px); }
+.t-ch { min-width: 12px; text-align: center; border-radius: 4px; padding: 0 1px; }
+.t-ch.ok { color: var(--accent2); }
+.t-ch.bad { color: #e03131; background: #ffe3e3; }
+body[data-theme="noche"] .t-ch.bad { background: #4a2626; }
+
 /* 跟读对比 */
 .speak-card {
   background: var(--card); border: 1px solid var(--line); border-radius: 20px;

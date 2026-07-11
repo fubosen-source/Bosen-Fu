@@ -192,6 +192,7 @@ function renderUnit(unit) {
     ["🔗", "词义配对", () => startMatching(unit)],
     ["🖼️", "图片选择", () => startPicture(unit)],
     ["⌨️", "拼写练习", () => startSpelling(unit)],
+    ["🔥", "打字强化", () => startTypeDrill(unit)],
     ["🎙️", "跟读对比", () => startSpeak(unit)],
     ["📝", "单元测验", () => startQuiz(unit)]
   ];
@@ -533,6 +534,175 @@ function startSpelling(unit) {
 
     input.focus();
     speak(w.es);
+  }
+  show();
+}
+
+// ===================== 打字强化记忆 (三段递进: 跟打 → 半提示 → 默写) =====================
+const DRILL_STAGES = [
+  { key: "copy",   label: "① 跟打", tip: "看着单词，把它打出来" },
+  { key: "hint",   label: "② 半提示", tip: "只给首字母，听发音打出来" },
+  { key: "recall", label: "③ 默写", tip: "凭记忆盲打，答案已隐藏" }
+];
+
+function startTypeDrill(unit) {
+  const back = () => renderUnit(unit);
+  const words = shuffle(unit.words).slice(0, Math.min(8, unit.words.length));
+  const total = words.length * DRILL_STAGES.length;
+  let wi = 0, stage = 0, step = 0, misses = 0;
+  const { body, setProgress } = activityShell("🔥 打字强化", back, total);
+
+  function isLetter(ch) { return /[a-záéíóúüñ]/i.test(ch); }
+
+  function show() {
+    if (wi >= words.length) {
+      showResult(body, {
+        emoji: misses === 0 ? "🏆" : "🔥",
+        title: misses === 0 ? "¡Perfecto! 手指记住它们了！" : "打字强化完成！",
+        sub: `${words.length} 个词 × 3 轮，失误 ${misses} 次。多打几遍，肌肉记忆最牢。`,
+        onRetry: () => startTypeDrill(unit), onBack: back
+      });
+      return;
+    }
+    step++;
+    setProgress(step);
+    const w = words[wi];
+    const st = DRILL_STAGES[stage];
+    const target = w.es;
+    body.innerHTML = "";
+
+    const prompt = el("div", "spell-prompt");
+    prompt.innerHTML =
+      `<div class="big-emoji">${w.emoji}</div>
+       <div class="zh-word">${esc(w.zh)}</div>
+       <div class="stage-pill">${st.label} · ${st.tip}</div>`;
+    body.append(prompt);
+
+    // 目标单词显示区: 逐字母上色
+    const targetBox = el("div", "type-target" + (st.key === "recall" ? " masked" : ""));
+    const chSpans = [];
+    for (const ch of target) {
+      const showCh = st.key === "copy" ? ch
+        : st.key === "hint"
+          ? (chSpans.filter(s => s.dataset.letter === "1").length === 0 || !isLetter(ch) ? ch : "·")
+          : ch;
+      const s = el("span", "t-ch", esc(showCh));
+      s.dataset.ch = ch;
+      s.dataset.base = showCh;
+      s.dataset.letter = isLetter(ch) ? "1" : "0";
+      chSpans.push(s);
+      targetBox.append(s);
+    }
+    body.append(targetBox);
+
+    const input = el("input", "spell-input");
+    input.type = "text";
+    input.placeholder = st.key === "recall" ? "凭记忆输入…" : "在这里打字…";
+    input.autocapitalize = "off";
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    body.append(input);
+
+    const accents = el("div", "accent-row");
+    for (const ch of SPECIAL_CHARS) {
+      const k = el("button", "accent-key", ch);
+      k.addEventListener("click", () => {
+        const pos = input.selectionStart ?? input.value.length;
+        input.value = input.value.slice(0, pos) + ch + input.value.slice(input.selectionEnd ?? pos);
+        input.dispatchEvent(new Event("input"));
+        input.focus();
+        input.setSelectionRange(pos + 1, pos + 1);
+      });
+      accents.append(k);
+    }
+    body.append(accents);
+
+    const answer = el("div", "spell-answer", "");
+    body.append(answer);
+
+    const controls = el("div", "flash-controls");
+    const hearBtn = el("button", "ctrl-btn", "🔊 听发音");
+    hearBtn.addEventListener("click", () => speak(target));
+    controls.append(hearBtn);
+    let revealBtn = null;
+    if (st.key !== "copy") {
+      revealBtn = el("button", "ctrl-btn", "💡 偷看 2 秒");
+      controls.append(revealBtn);
+    }
+    body.append(controls);
+
+    let clean = true;   // 本轮没打错、没偷看
+    let done = false;
+
+    function paint() {
+      const val = input.value;
+      let allOk = val.length > 0;
+      for (let i = 0; i < chSpans.length; i++) {
+        const s = chSpans[i];
+        s.classList.remove("ok", "bad");
+        if (i < val.length) {
+          if (val[i].toLowerCase() === s.dataset.ch.toLowerCase()) {
+            s.classList.add("ok");
+            s.textContent = s.dataset.ch;   // 打对的字母实时揭开
+          } else {
+            s.classList.add("bad");
+            allOk = false;
+          }
+        } else {
+          s.textContent = s.dataset.base;
+          allOk = false;
+        }
+      }
+      // 打错(当前前缀不匹配)时标记失误
+      const prefixOk = target.toLowerCase().startsWith(val.toLowerCase());
+      input.classList.toggle("bad", !prefixOk && val.length > 0);
+      if (!prefixOk && clean) { clean = false; misses++; }
+      if (allOk && val.length === target.length && !done) {
+        done = true;
+        finish();
+      }
+    }
+
+    function finish() {
+      input.disabled = true;
+      input.classList.remove("bad");
+      input.classList.add("ok");
+      targetBox.classList.remove("masked");
+      chSpans.forEach(s => { s.classList.remove("bad"); s.classList.add("ok"); s.textContent = s.dataset.ch; });
+      speak(target);
+      if (st.key === "recall") {
+        markResult(w, clean);
+        answer.innerHTML = clean ? "🎯 全程无失误，记住了！" : "✅ 完成！这个词会再回到复习里巩固。";
+      } else {
+        answer.innerHTML = "✅ 很好，进入下一轮！";
+      }
+      setTimeout(() => {
+        stage++;
+        if (stage >= DRILL_STAGES.length) { stage = 0; wi++; }
+        show();
+      }, 850);
+    }
+
+    input.addEventListener("input", paint);
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") paint();
+    });
+    if (revealBtn) {
+      revealBtn.addEventListener("click", () => {
+        if (clean) { clean = false; misses++; }
+        const wasMasked = targetBox.classList.contains("masked");
+        targetBox.classList.remove("masked");
+        chSpans.forEach(s => { s.textContent = s.dataset.ch; });
+        setTimeout(() => {
+          if (done) return;
+          paint();                      // 还原到当前输入进度的显示状态
+          if (wasMasked) targetBox.classList.add("masked");
+        }, 2000);
+      });
+    }
+
+    input.focus();
+    speak(target);
   }
   show();
 }
