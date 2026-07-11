@@ -234,6 +234,28 @@ body[data-theme="noche"] .spell-input.ok { background: #16463a; }
 .spell-answer { text-align: center; margin-top: 14px; font-size: 15px; color: var(--ink2); min-height: 22px; }
 .spell-answer b { color: var(--accent); }
 
+/* 书写练习 (ScriptPad 风格: 单词卡 + 四线格手写画布) */
+.write-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 20px 24px 16px; text-align: center; margin-bottom: 12px;
+}
+.write-card .es-word { font-size: 34px; font-weight: 800; letter-spacing: .5px; }
+.write-card .zh-word { color: var(--ink2); font-size: 15px; margin: 2px 0 8px; }
+.write-card .big-emoji { font-size: 56px; line-height: 1.15; }
+.write-tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.tool-btn {
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  border-radius: 99px; padding: 7px 15px; font-size: 12.5px; font-weight: 700;
+  box-shadow: var(--shadow);
+}
+.tool-btn:hover { background: var(--hover); }
+.tool-btn.warn { background: var(--accent); border-color: var(--accent); color: #fff; }
+.canvas-wrap {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.canvas-wrap canvas { display: block; touch-action: none; cursor: crosshair; }
+
 /* 打字强化 */
 .stage-pill {
   display: inline-block; margin-top: 10px;

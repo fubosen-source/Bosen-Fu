@@ -191,7 +191,7 @@ function renderUnit(unit) {
     ["🃏", "闪卡", () => startFlashcards(unit)],
     ["🔗", "词义配对", () => startMatching(unit)],
     ["🖼️", "图片选择", () => startPicture(unit)],
-    ["⌨️", "拼写练习", () => startSpelling(unit)],
+    ["✍️", "书写练习", () => startSpelling(unit)],
     ["🔥", "打字强化", () => startTypeDrill(unit)],
     ["🎙️", "跟读对比", () => startSpeak(unit)],
     ["📝", "单元测验", () => startQuiz(unit)]
@@ -451,16 +451,21 @@ function stripArticle(s) {
 
 function startSpelling(unit) {
   const back = () => renderUnit(unit);
-  const words = shuffle(unit.words).slice(0, Math.min(10, unit.words.length));
-  let idx = 0, mistakes = 0;
-  const { body, setProgress } = activityShell("⌨️ 拼写练习", back, words.length);
+  const words = shuffle(unit.words);
+  let idx = 0;
+  let mode = "write";     // write = 手写画布, type = 键盘拼写
+  let showGuide = true;   // 描红模板
+  const { body, setProgress } = activityShell("✍️ 书写练习", back, words.length);
+
+  function themeColor(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim();
+  }
 
   function show() {
     if (idx >= words.length) {
       showResult(body, {
-        emoji: mistakes === 0 ? "🏆" : "✍️",
-        title: "拼写练习完成！",
-        sub: `${words.length} 个词，答错 ${mistakes} 次。`,
+        emoji: "✍️", title: "书写练习完成！",
+        sub: `你练习书写了 ${words.length} 个词。`,
         onRetry: () => startSpelling(unit), onBack: back
       });
       return;
@@ -469,9 +474,158 @@ function startSpelling(unit) {
     const w = words[idx];
     body.innerHTML = "";
 
-    const prompt = el("div", "spell-prompt");
-    prompt.innerHTML = `<div class="big-emoji">${w.emoji}</div><div class="zh-word">${esc(w.zh)}</div>`;
-    body.append(prompt);
+    // ===== 上方: 单词卡 (像 ScriptPad: 大字 + 中文 + 插图) =====
+    const card = el("div", "write-card");
+    card.innerHTML =
+      `<div class="es-word">${esc(w.es)}</div>
+       <div class="zh-word">${esc(w.zh)}</div>
+       <div class="big-emoji">${w.emoji}</div>`;
+    body.append(card);
+
+    // ===== 工具条 =====
+    const tools = el("div", "write-tools");
+    body.append(tools);
+
+    const area = el("div");
+    body.append(area);
+
+    if (mode === "write") renderWrite(w, tools, area);
+    else renderType(w, tools, area);
+
+    // ===== 上一个 / 下一个 =====
+    const controls = el("div", "flash-controls");
+    const prevBtn = el("button", "ctrl-btn", "← 上一个");
+    prevBtn.disabled = idx === 0;
+    prevBtn.addEventListener("click", () => { idx--; show(); });
+    const nextBtn = el("button", "ctrl-btn primary", "下一个 →");
+    nextBtn.addEventListener("click", () => { markResult(w, true); idx++; show(); });
+    controls.append(prevBtn, nextBtn);
+    body.append(controls);
+
+    speak(w.es);
+  }
+
+  // ---------- 手写画布 ----------
+  function renderWrite(w, tools, area) {
+    const clearBtn = el("button", "tool-btn warn", "🧹 Clear");
+    const undoBtn = el("button", "tool-btn", "↩️ Undo");
+    const playBtn = el("button", "tool-btn", "🔊 发音");
+    const guideBtn = el("button", "tool-btn", showGuide ? "👁 描红: 开" : "👁 描红: 关");
+    const typeBtn = el("button", "tool-btn", "⌨️ Type");
+    tools.append(clearBtn, undoBtn, playBtn, guideBtn, typeBtn);
+
+    const wrap = el("div", "canvas-wrap");
+    const canvas = document.createElement("canvas");
+    wrap.append(canvas);
+    area.append(wrap);
+
+    const H = 230;
+    const dpr = window.devicePixelRatio || 1;
+    // 插入 DOM 后才能量宽度
+    requestAnimationFrame(() => {
+      const cssW = wrap.clientWidth;
+      canvas.width = cssW * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = cssW + "px";
+      canvas.style.height = H + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      redraw();
+    });
+    const ctx = canvas.getContext("2d");
+
+    let strokes = [];
+    let cur = null;
+
+    function redraw() {
+      const cw = canvas.width / dpr, chh = canvas.height / dpr;
+      ctx.clearRect(0, 0, cw, chh);
+      // 四线格
+      const top = chh * 0.18, mid = chh * 0.5, base = chh * 0.82;
+      const lineC = themeColor("--line");
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = lineC;
+      for (const [y, dashed] of [[top, false], [mid, true], [base, false]]) {
+        ctx.beginPath();
+        ctx.setLineDash(dashed ? [7, 7] : []);
+        ctx.moveTo(12, y); ctx.lineTo(cw - 12, y);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      // 描红模板 (浅色大字，可临摹)
+      if (showGuide) {
+        let size = (base - top) * 1.05;
+        ctx.font = `${size}px "Chalkboard SE", "Marker Felt", "Comic Sans MS", cursive`;
+        while (ctx.measureText(w.es).width > cw - 50 && size > 18) {
+          size -= 4;
+          ctx.font = `${size}px "Chalkboard SE", "Marker Felt", "Comic Sans MS", cursive`;
+        }
+        ctx.fillStyle = themeColor("--ink2");
+        ctx.globalAlpha = 0.28;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(w.es, cw / 2, base - 4);
+        ctx.globalAlpha = 1;
+      }
+      // 笔迹
+      ctx.lineWidth = 5.5;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = themeColor("--ink");
+      for (const st of strokes) {
+        const pts = st.points;
+        if (pts.length < 2) {
+          ctx.beginPath();
+          ctx.arc(pts[0][0], pts[0][1], 2.6, 0, Math.PI * 2);
+          ctx.fillStyle = themeColor("--ink");
+          ctx.fill();
+          continue;
+        }
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 1; i < pts.length - 1; i++) {
+          const mx = (pts[i][0] + pts[i + 1][0]) / 2;
+          const my = (pts[i][1] + pts[i + 1][1]) / 2;
+          ctx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my);
+        }
+        ctx.lineTo(pts[pts.length - 1][0], pts[pts.length - 1][1]);
+        ctx.stroke();
+      }
+    }
+
+    canvas.addEventListener("pointerdown", e => {
+      canvas.setPointerCapture(e.pointerId);
+      cur = { points: [[e.offsetX, e.offsetY]] };
+      strokes.push(cur);
+      redraw();
+    });
+    canvas.addEventListener("pointermove", e => {
+      if (!cur) return;
+      cur.points.push([e.offsetX, e.offsetY]);
+      redraw();
+    });
+    const endStroke = () => { cur = null; };
+    canvas.addEventListener("pointerup", endStroke);
+    canvas.addEventListener("pointercancel", endStroke);
+
+    clearBtn.addEventListener("click", () => { strokes = []; redraw(); });
+    undoBtn.addEventListener("click", () => { strokes.pop(); cur = null; redraw(); });
+    playBtn.addEventListener("click", () => speak(w.es));
+    guideBtn.addEventListener("click", () => {
+      showGuide = !showGuide;
+      guideBtn.textContent = showGuide ? "👁 描红: 开" : "👁 描红: 关";
+      redraw();
+    });
+    typeBtn.addEventListener("click", () => { mode = "type"; show(); });
+
+    area.append(el("p", "hint", "在四线格上用鼠标 / 触控板临摹这个词 · 点 ⌨️ Type 切换键盘拼写"));
+  }
+
+  // ---------- 键盘拼写 ----------
+  function renderType(w, tools, area) {
+    const playBtn = el("button", "tool-btn", "🔊 发音");
+    const revealBtn = el("button", "tool-btn", "💡 看答案");
+    const writeBtn = el("button", "tool-btn", "✍️ 手写");
+    tools.append(playBtn, revealBtn, writeBtn);
 
     const input = el("input", "spell-input");
     input.type = "text";
@@ -479,7 +633,7 @@ function startSpelling(unit) {
     input.autocapitalize = "off";
     input.autocomplete = "off";
     input.spellcheck = false;
-    body.append(input);
+    area.append(input);
 
     const accents = el("div", "accent-row");
     for (const ch of SPECIAL_CHARS) {
@@ -492,18 +646,14 @@ function startSpelling(unit) {
       });
       accents.append(k);
     }
-    body.append(accents);
+    area.append(accents);
 
     const answer = el("div", "spell-answer", "");
-    body.append(answer);
-
-    const controls = el("div", "flash-controls");
-    const hearBtn = el("button", "ctrl-btn", "🔊 听发音");
-    hearBtn.addEventListener("click", () => speak(w.es));
-    const revealBtn = el("button", "ctrl-btn", "💡 看答案");
+    area.append(answer);
+    const checkRow = el("div", "flash-controls");
     const checkBtn = el("button", "ctrl-btn primary", "检查 ⏎");
-    controls.append(hearBtn, revealBtn, checkBtn);
-    body.append(controls);
+    checkRow.append(checkBtn);
+    area.append(checkRow);
 
     let firstTry = true;
     function check() {
@@ -520,7 +670,7 @@ function startSpelling(unit) {
         setTimeout(() => { idx++; show(); }, 950);
       } else {
         input.classList.add("bad");
-        if (firstTry) { mistakes++; markResult(w, false); }
+        if (firstTry) { markResult(w, false); }
         firstTry = false;
         setTimeout(() => input.classList.remove("bad"), 450);
       }
@@ -528,13 +678,15 @@ function startSpelling(unit) {
     checkBtn.addEventListener("click", check);
     revealBtn.addEventListener("click", () => {
       answer.innerHTML = `💡 答案: <b>${esc(w.es)}</b>`;
-      if (firstTry) { mistakes++; markResult(w, false); firstTry = false; }
+      if (firstTry) { markResult(w, false); firstTry = false; }
     });
     input.addEventListener("keydown", e => { if (e.key === "Enter") check(); });
+    playBtn.addEventListener("click", () => speak(w.es));
+    writeBtn.addEventListener("click", () => { mode = "write"; show(); });
 
     input.focus();
-    speak(w.es);
   }
+
   show();
 }
 
