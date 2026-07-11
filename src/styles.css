@@ -269,7 +269,7 @@ body[data-theme="noche"] .spell-input.ok { background: #16463a; }
 .ruled-letters {
   position: absolute; left: 22px; right: 22px; bottom: calc(18% - 4px);
   display: flex; justify-content: center; white-space: pre;
-  font-family: "Chalkboard SE", "Marker Felt", "Comic Sans MS", cursive;
+  font-family: var(--font); font-weight: 500;
   line-height: .95; font-size: 88px; user-select: none;
 }
 .r-ch { color: var(--ink2); opacity: .3; transition: color .12s, opacity .12s; }

@@ -553,11 +553,12 @@ function startSpelling(unit) {
       ctx.setLineDash([]);
       // 描红模板 (浅色大字，可临摹)
       if (showGuide) {
+        const fontStack = `500 SIZEpx ${themeColor("--font") || '-apple-system, "Helvetica Neue", sans-serif'}`;
         let size = (base - top) * 1.05;
-        ctx.font = `${size}px "Chalkboard SE", "Marker Felt", "Comic Sans MS", cursive`;
+        ctx.font = fontStack.replace("SIZE", size);
         while (ctx.measureText(w.es).width > cw - 50 && size > 18) {
           size -= 4;
-          ctx.font = `${size}px "Chalkboard SE", "Marker Felt", "Comic Sans MS", cursive`;
+          ctx.font = fontStack.replace("SIZE", size);
         }
         ctx.fillStyle = themeColor("--ink2");
         ctx.globalAlpha = 0.28;
