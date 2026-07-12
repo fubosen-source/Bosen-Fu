@@ -469,6 +469,58 @@ function deaccent(ch) {
 function practiceText(s) {
   return s.replace(/[¿?¡!.,;:…"'“”‘’()—-]/g, "").replace(/\s+/g, " ").trim();
 }
+// ===== 西语 → IPA 音标 (墨西哥发音: seseo + yeísmo, 规则转换) =====
+function esWordIPA(word) {
+  let w = word.toLowerCase().replace(/[^a-záéíóúüñ]/g, "");
+  if (!w) return "";
+  w = w.replace(/x/g, "ks");
+  w = w.replace(/ch/g, "ʧ");
+  w = w.replace(/ll/g, "ʝ");
+  w = w.replace(/ñ/g, "ɲ");
+  w = w.replace(/qu(?=[eéií])/g, "k");
+  w = w.replace(/gü(?=[eéií])/g, "ɡw");
+  w = w.replace(/gu(?=[eéií])/g, "ɡ");
+  w = w.replace(/g(?=[eéií])/g, "x");
+  w = w.replace(/g/g, "ɡ");
+  w = w.replace(/c(?=[eéií])/g, "s");
+  w = w.replace(/c/g, "k");
+  w = w.replace(/z/g, "s");
+  w = w.replace(/v/g, "b");
+  w = w.replace(/h/g, "");
+  w = w.replace(/j/g, "x");
+  w = w.replace(/rr/g, "R").replace(/^r/, "R").replace(/r/g, "ɾ").replace(/R/g, "r");
+  w = w.replace(/y$/, "i").replace(/^y$/, "i").replace(/y/g, "ʝ");
+  w = w.replace(/ü/g, "u");
+  // 滑音: 弱 i/u + 元音
+  w = w.replace(/i(?=[aeouáéóú])/g, "j");
+  w = w.replace(/u(?=[aeioáéíó])/g, "w");
+  // 重音位置
+  const isNucleus = ch => "aeiouáéíóú".includes(ch);
+  const nuclei = [];
+  for (let i = 0; i < w.length; i++) if (isNucleus(w[i])) nuclei.push(i);
+  if (nuclei.length > 1) {
+    let stressPos = w.split("").findIndex(ch => "áéíóú".includes(ch));
+    if (stressPos < 0) {
+      const endsSoft = /[aeiouáéíóúns]$/.test(w);
+      stressPos = endsSoft ? nuclei[nuclei.length - 2] : nuclei[nuclei.length - 1];
+    }
+    // ˈ 放在该音节的合法辅音起始处 (单辅音, 或 塞音/f+流音 组合)
+    let onset = stressPos;
+    while (onset > 0 && !isNucleus(w[onset - 1]) && w[onset - 1] !== "ˈ") onset--;
+    const cluster = w.slice(onset, stressPos);
+    if (cluster.length > 1) {
+      onset = /([pbtdkɡf][ɾl]|.[wj])$/.test(cluster) ? stressPos - 2 : stressPos - 1;
+    }
+    w = w.slice(0, onset) + "ˈ" + w.slice(onset);
+  }
+  w = w.replace(/[áéíóú]/g, ch => ({ "á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u" }[ch]));
+  return w.replace(/ʧ/g, "tʃ");
+}
+function esIPA(phrase) {
+  const parts = practiceText(phrase).split(/\s+/).map(esWordIPA).filter(Boolean);
+  return parts.length ? "/" + parts.join(" ") + "/" : "";
+}
+
 function charMatches(typed, target) {
   if (!typed || !target) return false;
   if (/\s/.test(typed) && /\s/.test(target)) return true;
@@ -483,18 +535,59 @@ function stripArticle(s) {
 }
 
 function startSpelling(unit) {
-  const back = () => renderUnit(unit);
   const words = shuffle(unit.words);
   let idx = 0;
   let mode = "type";      // type = 四线格打字(默认), write = 手写画布
   let showGuide = true;   // 描红模板
+  let seqTimers = [];
+  let curExBox = null;
+  function clearSeq() {
+    seqTimers.forEach(clearTimeout);
+    seqTimers = [];
+    if (synth) synth.cancel();
+  }
+  const back = () => { clearSeq(); renderUnit(unit); };
   const { body, setProgress } = activityShell("✍️ 书写练习", back, words.length);
+
+  // 朗读节奏 (参考直播词卡): 单词×2 → 停顿 → 例句浮现并×2
+  function playSequence(w) {
+    clearSeq();
+    const wordDur = 750 + w.es.length * 90;
+    const say = (text, delay) => seqTimers.push(setTimeout(() => speak(text), delay));
+    say(w.es, 60);
+    say(w.es, wordDur + 550);
+    if (w.ex) {
+      const t3 = wordDur * 2 + 550 + 850;
+      seqTimers.push(setTimeout(() => {
+        if (curExBox) curExBox.classList.add("show");
+        speak(w.ex);
+      }, t3));
+      const exDur = 1000 + w.ex.length * 75;
+      say(w.ex, t3 + exDur + 950);
+    }
+  }
+
+  // 例句中把目标词加粗
+  function boldWord(sentence, es) {
+    const safe = esc(sentence);
+    const stem = stripArticle(practiceText(es)).split(" ")[0];
+    if (stem && stem.length >= 3) {
+      const idx2 = safe.toLowerCase().indexOf(stem.toLowerCase());
+      if (idx2 >= 0) {
+        let end = idx2 + stem.length;
+        while (end < safe.length && /[a-záéíóúüñ]/i.test(safe[end])) end++;
+        return safe.slice(0, idx2) + "<b>" + safe.slice(idx2, end) + "</b>" + safe.slice(end);
+      }
+    }
+    return safe;
+  }
 
   function themeColor(name) {
     return getComputedStyle(document.body).getPropertyValue(name).trim();
   }
 
   function show() {
+    clearSeq();
     if (idx >= words.length) {
       showResult(body, {
         emoji: "✍️", title: "书写练习完成！",
@@ -507,12 +600,20 @@ function startSpelling(unit) {
     const w = words[idx];
     body.innerHTML = "";
 
-    // ===== 上方: 单词卡 (像 ScriptPad: 大字 + 中文 + 插图) =====
-    const card = el("div", "write-card");
+    // ===== 词卡: 单词+释义 / 音标 / 例句 (朗读时浮现) =====
+    const card = el("div", "listen-card");
     card.innerHTML =
-      `<div class="es-word">${esc(w.es)}</div>
-       <div class="zh-word">${esc(sub(w))}</div>
-       <div class="big-emoji">${w.emoji}</div>`;
+      `<div class="lc-word">${esc(w.es)} <span class="lc-emoji">${w.emoji}</span></div>
+       <div class="lc-sub">${esc(sub(w))}</div>
+       <div class="lc-ipa">${esc(esIPA(w.es))}</div>`;
+    curExBox = null;
+    if (w.ex) {
+      curExBox = el("div", "lc-example");
+      curExBox.innerHTML =
+        `<div class="lc-ex-es">${boldWord(w.ex, w.es)}</div>
+         <div class="lc-ex-zh">${esc(w.exZh || "")}</div>`;
+      card.append(curExBox);
+    }
     body.append(card);
 
     // ===== 工具条 =====
@@ -535,7 +636,7 @@ function startSpelling(unit) {
     controls.append(prevBtn, nextBtn);
     body.append(controls);
 
-    speak(w.es);
+    playSequence(w);
   }
 
   // ---------- 手写画布 ----------
@@ -643,7 +744,7 @@ function startSpelling(unit) {
 
     clearBtn.addEventListener("click", () => { strokes = []; redraw(); });
     undoBtn.addEventListener("click", () => { strokes.pop(); cur = null; redraw(); });
-    playBtn.addEventListener("click", () => speak(w.es));
+    playBtn.addEventListener("click", () => playSequence(w));
     guideBtn.addEventListener("click", () => {
       showGuide = !showGuide;
       guideBtn.textContent = showGuide ? "👁 描红: 开" : "👁 描红: 关";
@@ -736,7 +837,8 @@ function startSpelling(unit) {
         input.blur();
         box.classList.remove("hide-template");
         markResult(w, clean);
-        speak(target);
+        clearSeq();
+        speak(w.es);
         setTimeout(() => { idx++; show(); }, 900);
       }
     }
@@ -747,7 +849,7 @@ function startSpelling(unit) {
       spans.forEach(s => s.classList.remove("typed", "flash"));
       input.focus();
     });
-    playBtn.addEventListener("click", () => speak(target));
+    playBtn.addEventListener("click", () => playSequence(w));
     guideBtn.addEventListener("click", () => {
       showGuide = !showGuide;
       guideBtn.textContent = showGuide ? "👁 描红: 开" : "👁 描红: 关";

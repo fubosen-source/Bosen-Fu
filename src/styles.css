@@ -256,9 +256,30 @@ body[data-theme="noche"] .spell-input.ok { background: #16463a; }
 }
 .canvas-wrap canvas { display: block; touch-action: none; cursor: crosshair; }
 
+/* 听读词卡 (单词+释义 / 音标 / 例句) */
+.listen-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 18px 24px 16px; text-align: center; margin-bottom: 12px;
+}
+.listen-card .lc-word { font-size: 34px; font-weight: 800; letter-spacing: .5px; }
+.listen-card .lc-emoji { font-size: 24px; }
+.listen-card .lc-sub { color: var(--ink2); font-size: 15px; margin-top: 2px; }
+.listen-card .lc-ipa {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17.5px; color: var(--accent); letter-spacing: .5px; margin-top: 6px;
+}
+.lc-example {
+  margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line);
+  opacity: 0; transition: opacity .4s; min-height: 42px;
+}
+.lc-example.show { opacity: 1; }
+.lc-ex-es { font-size: 15.5px; }
+.lc-ex-es b { color: var(--accent); }
+.lc-ex-zh { font-size: 13px; color: var(--ink2); margin-top: 3px; }
+
 /* 四线格打字 */
 .ruled-box {
-  position: relative; height: 230px; overflow: hidden; cursor: text;
+  position: relative; height: 185px; overflow: hidden; cursor: text;
   background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
