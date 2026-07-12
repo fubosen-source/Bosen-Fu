@@ -17,8 +17,6 @@
     --accent-deep: #155e75;
     --accent-soft: #e8f4f7;
     --accent-border: #b5dde7;
-    --head: #182338;
-    --head-ink: #c6cede;
     --good: #15803d;
     --warn: #b45309;   --warn-bg: #fef6ec;   --warn-line: #f0d9b5;
     --danger: #b3261e; --danger-bg: #fdf1f0; --danger-line: #f2c7c4;
@@ -32,59 +30,6 @@
     --st-customs-bg: #f3ecfa; --st-customs-fg: #6b3fa0;
     --st-stock-bg: #dcf2e2;   --st-stock-fg: #166534;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #131a2a; --card: #1b2437; --ink: #e6eaf2; --ink-2: #a3adc2; --ink-3: #6b7690;
-      --line: #2b3650; --line-2: #232d45;
-      --accent: #4cc3dd; --accent-deep: #7fd6e8; --accent-soft: #16303e; --accent-border: #2b586b;
-      --head: #0e1524; --head-ink: #a9b4ca;
-      --good: #52c17c;
-      --warn: #e5a558; --warn-bg: #33270f; --warn-line: #55431e;
-      --danger: #ef8a84; --danger-bg: #3a1a18; --danger-line: #5e2b28;
-      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 2px 8px rgba(0,0,0,.35);
-      --st-pending-bg: #2a3348; --st-pending-fg: #b9c3d8;
-      --st-making-bg: #3a2e12;  --st-making-fg: #ecc477;
-      --st-done-bg: #16301f;    --st-done-fg: #7ed6a0;
-      --st-air-bg: #1c2c47;     --st-air-fg: #92b6ee;
-      --st-sea-bg: #123239;     --st-sea-fg: #74cddd;
-      --st-customs-bg: #2c2140; --st-customs-fg: #c6a3ef;
-      --st-stock-bg: #143323;   --st-stock-fg: #7fdb9e;
-    }
-  }
-  :root[data-theme="light"] {
-    --paper: #f6f7f9; --card: #ffffff; --ink: #182338; --ink-2: #5a6478; --ink-3: #9aa2b1;
-    --line: #e3e6ec; --line-2: #f0f2f5;
-    --accent: #0e7490; --accent-deep: #155e75; --accent-soft: #e8f4f7; --accent-border: #b5dde7;
-    --head: #182338; --head-ink: #c6cede;
-    --good: #15803d;
-    --warn: #b45309; --warn-bg: #fef6ec; --warn-line: #f0d9b5;
-    --danger: #b3261e; --danger-bg: #fdf1f0; --danger-line: #f2c7c4;
-    --shadow: 0 1px 2px rgba(24, 35, 56, .05), 0 2px 6px rgba(24, 35, 56, .06);
-    --st-pending-bg: #eceff5; --st-pending-fg: #46536e;
-    --st-making-bg: #fdf2dc;  --st-making-fg: #8a5a0b;
-    --st-done-bg: #e5f3ea;    --st-done-fg: #1d6b3c;
-    --st-air-bg: #e3edfb;     --st-air-fg: #2c5aa5;
-    --st-sea-bg: #ddf1f4;     --st-sea-fg: #16626f;
-    --st-customs-bg: #f3ecfa; --st-customs-fg: #6b3fa0;
-    --st-stock-bg: #dcf2e2;   --st-stock-fg: #166534;
-  }
-  :root[data-theme="dark"] {
-    --paper: #131a2a; --card: #1b2437; --ink: #e6eaf2; --ink-2: #a3adc2; --ink-3: #6b7690;
-    --line: #2b3650; --line-2: #232d45;
-    --accent: #4cc3dd; --accent-deep: #7fd6e8; --accent-soft: #16303e; --accent-border: #2b586b;
-    --head: #0e1524; --head-ink: #a9b4ca;
-    --good: #52c17c;
-    --warn: #e5a558; --warn-bg: #33270f; --warn-line: #55431e;
-    --danger: #ef8a84; --danger-bg: #3a1a18; --danger-line: #5e2b28;
-    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 2px 8px rgba(0,0,0,.35);
-    --st-pending-bg: #2a3348; --st-pending-fg: #b9c3d8;
-    --st-making-bg: #3a2e12;  --st-making-fg: #ecc477;
-    --st-done-bg: #16301f;    --st-done-fg: #7ed6a0;
-    --st-air-bg: #1c2c47;     --st-air-fg: #92b6ee;
-    --st-sea-bg: #123239;     --st-sea-fg: #74cddd;
-    --st-customs-bg: #2c2140; --st-customs-fg: #c6a3ef;
-    --st-stock-bg: #143323;   --st-stock-fg: #7fdb9e;
-  }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -96,7 +41,8 @@
 
   /* ===== 顶部控制台横条 ===== */
   .console {
-    background: var(--head); color: var(--head-ink);
+    background: var(--card); color: var(--ink-2);
+    border-bottom: 1px solid var(--line);
     padding: 14px 28px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
   }
   .console .mark { display: flex; align-items: center; gap: 12px; }
@@ -112,26 +58,22 @@
     content: ""; position: absolute; inset: 5px;
     border-radius: 50%; border: 2px solid rgba(255,255,255,.45);
   }
-  .console h1 { color: #fff; font-size: 17px; letter-spacing: .02em; }
-  .console .sub { font-size: 12px; margin-top: 2px; }
+  .console h1 { color: var(--ink); font-size: 17px; letter-spacing: .02em; }
+  .console .sub { font-size: 12px; margin-top: 2px; color: var(--ink-3); }
   .console .spacer { flex: 1; }
-  .console .btn { background: transparent; color: var(--head-ink); border-color: rgba(255,255,255,.22); }
-  .console .btn:hover { color: #fff; border-color: rgba(255,255,255,.5); background: transparent; }
-  .console .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .console .btn.primary:hover { filter: brightness(1.1); }
 
   /* ===== 国家页签 ===== */
   .country-bar {
-    background: var(--head); padding: 0 28px 0;
+    background: var(--card); padding: 0 28px 0;
     display: flex; gap: 4px; overflow-x: auto;
     border-bottom: 2px solid var(--accent);
   }
   .country-bar button {
-    border: 0; background: transparent; color: var(--head-ink);
+    border: 0; background: transparent; color: var(--ink-2);
     font-size: 13px; padding: 10px 16px; white-space: nowrap;
     border-radius: 8px 8px 0 0;
   }
-  .country-bar button:hover { color: #fff; }
+  .country-bar button:hover { color: var(--accent-deep); background: var(--accent-soft); }
   .country-bar button.active { background: var(--accent); color: #fff; font-weight: 600; }
 
   .btn {
@@ -312,9 +254,12 @@
   .req::after { content: " *"; color: var(--danger); }
 
   /* ===== 登录 ===== */
-  .login-screen { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: var(--head); }
+  .login-screen {
+    position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, var(--accent-soft) 0%, var(--paper) 65%);
+  }
   .login-screen.open { display: flex; }
-  .login-box { background: var(--card); border-radius: 14px; padding: 36px 34px; width: 380px; max-width: 92vw; box-shadow: 0 24px 80px rgba(0,0,0,.45); }
+  .login-box { background: var(--card); border-radius: 14px; padding: 36px 34px; width: 380px; max-width: 92vw; border: 1px solid var(--line); box-shadow: 0 18px 60px rgba(24, 35, 56, .16); }
   .login-box h2 { font-size: 20px; margin: 14px 0 4px; }
   .login-box p { font-size: 13px; color: var(--ink-2); margin-bottom: 20px; line-height: 1.7; }
   .login-box .field { margin-bottom: 14px; }
