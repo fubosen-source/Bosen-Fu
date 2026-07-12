@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>四年级暑假快乐复习营 🏖️</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="logo">🏖️ 四年级暑假快乐复习营</div>
+    <nav class="tabbar">
+      <button class="tab-btn active" data-tab="home">🏠 首页</button>
+      <button class="tab-btn" data-tab="english">🔤 英语</button>
+      <button class="tab-btn" data-tab="math">🔢 数学</button>
+      <button class="tab-btn" data-tab="science">🔬 科学</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ================= 首页 ================= -->
+    <section class="page active" id="page-home">
+      <div class="hero">
+        <div class="hero-emoji">🌞🍉⛱️</div>
+        <h1>暑假也能玩着学！</h1>
+        <p>每天 20 分钟，看动画 · 玩游戏 · 闯关答题，把四年级的知识牢牢记住！</p>
+      </div>
+
+      <div class="subject-cards" id="home-cards">
+        <div class="subject-card en" data-goto="english">
+          <div class="s-emoji">🔤</div>
+          <h2>英语</h2>
+          <p>单词闪卡 · 句型跟读 · 配对游戏 · 听音选图</p>
+          <div class="stars" data-star="english">☆☆☆</div>
+          <button class="btn">开始复习 →</button>
+        </div>
+        <div class="subject-card ma" data-goto="math">
+          <div class="s-emoji">🔢</div>
+          <h2>数学</h2>
+          <p>量角器 · 三角形动画 · 小数演示 · 口算挑战</p>
+          <div class="stars" data-star="math">☆☆☆</div>
+          <button class="btn">开始复习 →</button>
+        </div>
+        <div class="subject-card sc" data-goto="science">
+          <div class="s-emoji">🔬</div>
+          <h2>科学</h2>
+          <p>水循环动画 · 点亮电路 · 月相变化 · 声音实验</p>
+          <div class="stars" data-star="science">☆☆☆</div>
+          <button class="btn">开始复习 →</button>
+        </div>
+      </div>
+
+      <div class="card tips-card">
+        <h3>🗓️ 复习小贴士</h3>
+        <ul>
+          <li>⭐ 每个科目最后都有<strong>闯关小测验</strong>，答对 90% 以上就能拿满 3 颗星！</li>
+          <li>🔊 英语单词和句子都可以点小喇叭<strong>听发音</strong>，跟着大声读出来。</li>
+          <li>🎬 数学和科学里的<strong>动画演示</strong>可以反复播放，看懂了再做题。</li>
+          <li>🏆 三个科目都拿到 3 颗星，你就是暑假复习小冠军！</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ================= 英语 ================= -->
+    <section class="page" id="page-english">
+      <h1 class="page-title">🔤 英语乐园</h1>
+
+      <div class="card">
+        <h3>🃏 单词闪卡 <small>点卡片翻面，点 🔊 听发音</small></h3>
+        <div class="theme-picker" id="en-themes"></div>
+        <div id="en-flash"></div>
+      </div>
+
+      <div class="card">
+        <h3>💬 句型跟读 <small>点 🔊 听一听，再点 👀 看中文意思</small></h3>
+        <div id="en-sentences"></div>
+      </div>
+
+      <div class="card">
+        <h3>🔗 单词配对 <small>把英语单词和图片连起来</small></h3>
+        <div id="en-match"></div>
+      </div>
+
+      <div class="card">
+        <h3>👂 听音选图 <small>听单词发音，选出正确的图片</small></h3>
+        <div id="en-listen"></div>
+      </div>
+
+      <div class="card quiz-card">
+        <h3>🚩 英语闯关小测验</h3>
+        <div id="en-quiz"></div>
+      </div>
+    </section>
+
+    <!-- ================= 数学 ================= -->
+    <section class="page" id="page-math">
+      <h1 class="page-title">🔢 数学王国</h1>
+
+      <div class="card">
+        <h3>📐 角的度量 <small>拖动滑块转动射线，量角器帮你读出度数</small></h3>
+        <div id="ma-angle"></div>
+      </div>
+
+      <div class="card">
+        <h3>🔺 三角形内角和 · 动画小视频 <small>把三个角撕下来拼一拼，正好是一条直线！</small></h3>
+        <div id="ma-triangle"></div>
+      </div>
+
+      <div class="card">
+        <h3>🔟 小数的意义 <small>拖动滑块给百格图涂色，看看小数和分数怎么变</small></h3>
+        <div id="ma-decimal"></div>
+      </div>
+
+      <div class="card">
+        <h3>🧮 运算定律小卡片</h3>
+        <div id="ma-laws"></div>
+      </div>
+
+      <div class="card">
+        <h3>⚡ 口算大挑战 <small>连续答对越多，火苗越旺！</small></h3>
+        <div id="ma-oral"></div>
+      </div>
+
+      <div class="card quiz-card">
+        <h3>🚩 数学闯关小测验</h3>
+        <div id="ma-quiz"></div>
+      </div>
+    </section>
+
+    <!-- ================= 科学 ================= -->
+    <section class="page" id="page-science">
+      <h1 class="page-title">🔬 科学实验室</h1>
+
+      <div class="card">
+        <h3>💧 水循环 · 动画小视频 <small>太阳一晒，水去哪儿了？点播放看看</small></h3>
+        <div id="sc-water"></div>
+      </div>
+
+      <div class="card">
+        <h3>💡 点亮小灯泡 <small>点一下开关，接通电路</small></h3>
+        <div id="sc-circuit"></div>
+      </div>
+
+      <div class="card">
+        <h3>🌙 月相变化 <small>拖动滑块，看月亮一个月的"变脸"</small></h3>
+        <div id="sc-moon"></div>
+      </div>
+
+      <div class="card">
+        <h3>🔔 声音的产生 <small>敲一敲音叉：物体振动产生声音</small></h3>
+        <div id="sc-sound"></div>
+      </div>
+
+      <div class="card">
+        <h3>📒 科学知识卡片</h3>
+        <div id="sc-cards"></div>
+      </div>
+
+      <div class="card quiz-card">
+        <h3>🚩 科学闯关小测验</h3>
+        <div id="sc-quiz"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">🌈 坚持每天复习一点点，开学变成小学霸！</footer>
+
+  <script src="app.js"></script>
+  <script src="english.js"></script>
+  <script src="math.js"></script>
+  <script src="science.js"></script>
+</body>
+</html>
