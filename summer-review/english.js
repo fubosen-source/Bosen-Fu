@@ -107,7 +107,6 @@ function renderFlash() {
   const box = $("#en-flash");
   box.innerHTML = `
     <div class="flash-wrap">
-      <button class="btn ghost" id="flash-prev">⬅️ 上一张</button>
       <div class="flash-card" id="flash-card">
         <div class="flash-inner">
           <div class="flash-face flash-front">
@@ -122,10 +121,11 @@ function renderFlash() {
           </div>
         </div>
       </div>
-      <div class="flash-nav">
-        <button class="icon-btn" id="flash-say" title="听发音">🔊</button>
-        <button class="btn" id="flash-next">下一张 ➡️</button>
-      </div>
+    </div>
+    <div class="flash-controls">
+      <button class="btn ghost" id="flash-prev">⬅️ 上一张</button>
+      <button class="icon-btn" id="flash-say" title="听发音">🔊</button>
+      <button class="btn" id="flash-next">下一张 ➡️</button>
     </div>
     <div class="flash-count">第 ${flashIdx + 1} / ${words.length} 张 · ${EN_THEMES[flashTheme].name}</div>
   `;

@@ -131,7 +131,7 @@ main { max-width: 980px; margin: 0 auto; padding: 22px 16px 60px; }
 .flash-word { font-size: 30px; font-weight: 800; color: #e65100; }
 .flash-cn { font-size: 24px; font-weight: 700; color: #1565c0; }
 .flash-hint { font-size: 12px; color: #a1887f; }
-.flash-nav { display: flex; flex-direction: column; gap: 10px; }
+.flash-controls { display: flex; gap: 12px; justify-content: center; align-items: center; margin-top: 14px; flex-wrap: wrap; }
 .flash-count { text-align: center; font-size: 13px; color: #9a8a7a; margin-top: 10px; }
 
 /* ---------- 英语：句型 ---------- */
@@ -302,9 +302,31 @@ input[type="range"] { width: 240px; accent-color: #ff9800; }
 /* ---------- 底部 ---------- */
 .foot { text-align: center; padding: 24px; color: #a1887f; font-size: 14px; }
 
+/* ---------- 触控优化 ---------- */
+.btn, .tab-btn, .icon-btn, .quiz-opt, .match-tile, .listen-opt, .theme-chip {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- 手机：底部导航栏，像 App 一样 ---------- */
 @media (max-width: 640px) {
-  .logo { font-size: 17px; }
-  .tab-btn { padding: 7px 12px; font-size: 14px; }
-  .flash-card { width: 260px; height: 190px; }
+  .logo { font-size: 17px; width: 100%; text-align: center; }
+  .topbar { justify-content: center; padding: 10px 12px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+    background: #fff;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    box-shadow: 0 -3px 14px rgba(90, 60, 20, .18);
+    justify-content: space-around; gap: 4px;
+  }
+  .tab-btn { background: #fff8ee; padding: 9px 13px; font-size: 14px; }
+  .tab-btn.active {
+    background: linear-gradient(135deg, #ffd54f, #ffb74d);
+    box-shadow: 0 2px 6px rgba(255, 152, 0, .4);
+  }
+  main { padding-bottom: 96px; }
+  .foot { padding-bottom: 90px; }
+  .flash-card { width: 280px; height: 200px; }
   .oral-q { font-size: 28px; }
+  .page-title { font-size: 25px; }
 }

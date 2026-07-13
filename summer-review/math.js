@@ -281,7 +281,7 @@ function initOral() {
   box.innerHTML = `
     <div class="oral-wrap">
       <div class="oral-q" id="oral-q"></div>
-      <input class="oral-input" id="oral-in" type="number" step="any" placeholder="?">
+      <input class="oral-input" id="oral-in" type="number" step="any" inputmode="decimal" placeholder="?">
       <button class="btn blue" id="oral-check">检查 ✔</button>
       <div class="oral-msg" id="oral-msg"></div>
       <div class="oral-streak" id="oral-streak"></div>
