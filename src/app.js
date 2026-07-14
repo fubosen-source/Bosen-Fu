@@ -151,12 +151,20 @@ function updateSidebarStats() {
 }
 
 // ===================== 导航 =====================
+// 离开当前视图时的清理钩子 (停止跟练朗读序列等)
+let currentCleanup = null;
+function runCleanup() {
+  if (currentCleanup) { try { currentCleanup(); } catch {} currentCleanup = null; }
+}
+
 document.querySelectorAll(".nav-btn").forEach(btn => {
   btn.addEventListener("click", () => {
+    runCleanup();
     document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     const nav = btn.dataset.nav;
     if (nav === "home") renderHome();
+    else if (nav === "phrases") renderPhrases();
     else if (nav === "review") renderReview();
     else if (nav === "custom") renderCustom();
     else if (nav === "settings") renderSettings();
@@ -1271,6 +1279,150 @@ function renderReview() {
     list.append(row);
   }
   main.append(list);
+}
+
+// ===================== 短句 & 短语讲解 (视频"跟练"风格) =====================
+let phrasesSeen = store.get("phrasesSeen", {});   // es -> true
+function markPhraseSeen(p) {
+  if (!phrasesSeen[p.es]) { phrasesSeen[p.es] = true; store.set("phrasesSeen", phrasesSeen); }
+}
+function allPhrases() { return PHRASE_UNITS.flatMap(u => u.phrases); }
+
+function renderPhrases() {
+  runCleanup();
+  main.innerHTML = "";
+  const total = allPhrases().length;
+  const learned = allPhrases().filter(p => phrasesSeen[p.es]).length;
+  main.append(
+    el("h1", "page-title", "短句和短语讲解大全"),
+    el("p", "page-sub",
+      `借鉴「日常西语口语跟练」短视频：整句 + 逐词拆解 + 语音跟读、红笔标注语法点 · 共 ${total} 条 · 已学 ${learned}`)
+  );
+  const grid = el("div", "unit-grid");
+  for (const unit of PHRASE_UNITS) {
+    const t = unit.phrases.length;
+    const done = unit.phrases.filter(p => phrasesSeen[p.es]).length;
+    const pct = t ? Math.round(done / t * 100) : 0;
+    const card = el("button", "unit-card");
+    card.innerHTML =
+      `<div class="u-emoji" style="background:${unit.color}22">${unit.emoji}</div>
+       <h3>${esc(unit.title)}</h3>
+       <div class="u-count">${t} 条短句 · 已学 ${pct}%</div>
+       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${unit.color}"></div></div>`;
+    card.addEventListener("click", () => startPhrasePlayer(unit, 0));
+    grid.append(card);
+  }
+  main.append(grid);
+}
+
+// 跟练播放器: 单张卡片复刻视频 (标题横幅 + 句子 + 逐词红线高亮 + 语音)
+function startPhrasePlayer(unit, startIdx) {
+  let idx = startIdx || 0;
+  let timers = [];
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; if (synth) synth.cancel(); }
+  currentCleanup = clearTimers;
+  const back = () => { clearTimers(); currentCleanup = null; renderPhrases(); };
+  const { body, setProgress } = activityShell("📺 " + unit.title, back, unit.phrases.length);
+
+  function show() {
+    clearTimers();
+    if (idx >= unit.phrases.length) {
+      currentCleanup = null;
+      showResult(body, {
+        emoji: "🎬", title: "跟练完成！",
+        sub: `你跟读讲解了 ${unit.phrases.length} 个短句短语。`,
+        onRetry: () => startPhrasePlayer(unit, 0), onBack: back
+      });
+      return;
+    }
+    setProgress(idx + 1);
+    const p = unit.phrases[idx];
+    markPhraseSeen(p);
+    body.innerHTML = "";
+
+    // ===== 视频跟练卡 =====
+    const hero = el("div", "phrase-hero", "日常西语口语跟练");
+    const board = el("div", "phrase-board");
+
+    // 句子
+    board.append(el("div", "pb-label", "句子"));
+    const sent = el("div", "pb-sentence");
+    const sentEs = el("div", "ps-es", esc(p.es));
+    sentEs.title = "点击朗读整句";
+    sentEs.addEventListener("click", () => { clearTimers(); sentEs.classList.add("lit"); speak(p.es); });
+    sent.append(sentEs, el("div", "ps-zh", esc(p.zh)));
+    board.append(sent);
+
+    // 单词 (逐词拆解)
+    board.append(el("div", "pb-label", "单词"));
+    const partsWrap = el("div", "pb-parts");
+    const partEls = [];
+    p.parts.forEach((pt, i) => {
+      const pe = el("div", "phrase-part");
+      pe.innerHTML =
+        `${pt.note ? `<div class="pp-note">${esc(pt.note)}</div>` : ""}
+         <div class="pp-es">${esc(pt.es)}</div>
+         <div class="pp-zh">${esc(pt.zh)}</div>`;
+      pe.title = "点击朗读这个词块";
+      pe.addEventListener("click", () => {
+        clearTimers();
+        partEls.forEach((e, j) => { e.classList.toggle("active", j === i); e.classList.remove("done"); });
+        speak(pt.es);
+      });
+      partsWrap.append(pe);
+      partEls.push(pe);
+    });
+    board.append(partsWrap);
+    body.append(hero, board);
+
+    // ===== 跟读序列: 整句 → 逐词(红线高亮 + 批注浮现) → 整句 =====
+    function playSeq() {
+      clearTimers();
+      partEls.forEach(e => e.classList.remove("active", "done"));
+      const push = (fn, d) => timers.push(setTimeout(fn, d));
+      sentEs.classList.add("lit");
+      speak(p.es);
+      let t = 1100 + p.es.length * 75;
+      push(() => sentEs.classList.remove("lit"), t);
+      t += 350;
+      p.parts.forEach((pt, i) => {
+        push(() => {
+          partEls.forEach((e, j) => { e.classList.toggle("active", j === i); e.classList.toggle("done", j < i); });
+          speak(pt.es);
+        }, t);
+        t += 850 + pt.es.length * 95;
+      });
+      push(() => {
+        partEls.forEach(e => { e.classList.remove("active"); e.classList.add("done"); });
+        sentEs.classList.add("lit");
+        speak(p.es);
+      }, t + 250);
+      push(() => sentEs.classList.remove("lit"), t + 250 + 1100 + p.es.length * 75);
+    }
+
+    // ===== 控件 =====
+    const controls = el("div", "flash-controls");
+    const playBtn = el("button", "ctrl-btn primary", "▶️ 跟读讲解");
+    playBtn.addEventListener("click", playSeq);
+    const slowBtn = el("button", "ctrl-btn", "🐢 慢速整句");
+    slowBtn.addEventListener("click", () => { clearTimers(); sentEs.classList.add("lit"); speak(p.es, 0.55); });
+    controls.append(playBtn, slowBtn);
+    body.append(controls);
+
+    const nav = el("div", "flash-controls");
+    const prev = el("button", "ctrl-btn", "← 上一句");
+    prev.disabled = idx === 0;
+    prev.addEventListener("click", () => { idx--; show(); });
+    const next = el("button", "ctrl-btn", "下一句 →");
+    next.addEventListener("click", () => { idx++; show(); });
+    nav.append(prev, next);
+    body.append(nav);
+
+    body.append(el("p", "hint", "点句子 / 词块可单独朗读 · ▶️ 自动跟读讲解，逐词红线高亮"));
+
+    playSeq();   // 打开即自动播放一遍
+  }
+  show();
 }
 
 // ===================== 自定义课程 =====================

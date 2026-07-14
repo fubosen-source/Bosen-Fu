@@ -252,7 +252,120 @@ const UNITS = [
   }
 ];
 
+// ===================== 短句 & 短语讲解 =====================
+// 借鉴「日常西语口语跟练」短视频: 整句 + 逐词拆解 + 语音跟读, 红笔标注语法点
+// 每条: es (整句) / zh (整句中文) / en (英文) / parts:[{ es, zh, note? }]
+//   parts = 把句子拆成词块, 依次朗读 + 红线高亮; note = 手写红笔批注 (语法点, 可选)
+const PHRASE_UNITS = [
+  {
+    id: "p-cotidiano",
+    title: "日常口语",
+    emoji: "💬",
+    color: "#1971c2",
+    phrases: [
+      { es: "¡Claro que sí!", zh: "当然是的！", en: "Of course!",
+        parts: [ { es: "Claro", zh: "清楚、当然" }, { es: "que sí", zh: "是的", note: "连接词" } ] },
+      { es: "¿Qué onda?", zh: "怎么样？最近如何？", en: "What's up? (MX)",
+        parts: [ { es: "Qué", zh: "什么" }, { es: "onda", zh: "波 → 情况", note: "墨西哥口语" } ] },
+      { es: "No manches", zh: "不会吧！别逗了", en: "No way! (MX)",
+        parts: [ { es: "No", zh: "不" }, { es: "manches", zh: "别乱说", note: "动词 manchar" } ] },
+      { es: "Ahorita voy", zh: "我马上来", en: "I'm coming right now",
+        parts: [ { es: "Ahorita", zh: "马上、一会儿", note: "墨西哥万能词" }, { es: "voy", zh: "我去", note: "动词 ir" } ] },
+      { es: "Está bien", zh: "好的、没问题", en: "It's fine / OK",
+        parts: [ { es: "Está", zh: "它是", note: "动词 estar" }, { es: "bien", zh: "好" } ] },
+      { es: "Nos vemos", zh: "回头见", en: "See you",
+        parts: [ { es: "Nos", zh: "我们", note: "反身代词" }, { es: "vemos", zh: "见面", note: "动词 verse" } ] },
+      { es: "¿Qué te parece?", zh: "你觉得怎么样？", en: "What do you think?",
+        parts: [ { es: "Qué", zh: "什么" }, { es: "te", zh: "对你而言", note: "间接宾语" }, { es: "parece", zh: "觉得", note: "动词 parecer" } ] },
+      { es: "Vale la pena", zh: "值得", en: "It's worth it",
+        parts: [ { es: "Vale", zh: "值得", note: "动词 valer" }, { es: "la pena", zh: "这份辛苦" } ] }
+    ]
+  },
+  {
+    id: "p-restaurante",
+    title: "餐厅点餐",
+    emoji: "🍽️",
+    color: "#2f9e44",
+    phrases: [
+      { es: "La cuenta, por favor", zh: "请结账", en: "The bill, please",
+        parts: [ { es: "La cuenta", zh: "账单" }, { es: "por favor", zh: "请", note: "礼貌用语" } ] },
+      { es: "¿Qué me recomienda?", zh: "您推荐什么？", en: "What do you recommend?",
+        parts: [ { es: "Qué", zh: "什么" }, { es: "me", zh: "给我", note: "间接宾语" }, { es: "recomienda", zh: "推荐", note: "动词 recomendar" } ] },
+      { es: "Para llevar, por favor", zh: "请打包带走", en: "To go, please",
+        parts: [ { es: "Para llevar", zh: "带走", note: "para + 动词" }, { es: "por favor", zh: "请" } ] },
+      { es: "Está muy rico", zh: "很好吃", en: "It's very tasty",
+        parts: [ { es: "Está", zh: "它是", note: "动词 estar" }, { es: "muy", zh: "非常" }, { es: "rico", zh: "美味的" } ] },
+      { es: "Sin chile, por favor", zh: "请不要辣椒", en: "Without chili, please",
+        parts: [ { es: "Sin", zh: "没有、不加" }, { es: "chile", zh: "辣椒" }, { es: "por favor", zh: "请" } ] },
+      { es: "¿Cuánto le debo?", zh: "我该付您多少？", en: "How much do I owe you?",
+        parts: [ { es: "Cuánto", zh: "多少" }, { es: "le", zh: "给您", note: "间接宾语·敬称" }, { es: "debo", zh: "我欠", note: "动词 deber" } ] },
+      { es: "Quiero un taco", zh: "我要一个塔可", en: "I want a taco",
+        parts: [ { es: "Quiero", zh: "我想要", note: "动词 querer" }, { es: "un taco", zh: "一个塔可" } ] }
+    ]
+  },
+  {
+    id: "p-calle",
+    title: "问路出行",
+    emoji: "🧭",
+    color: "#0c8599",
+    phrases: [
+      { es: "¿Dónde está el baño?", zh: "洗手间在哪里？", en: "Where is the bathroom?",
+        parts: [ { es: "Dónde", zh: "哪里" }, { es: "está", zh: "在", note: "动词 estar" }, { es: "el baño", zh: "洗手间" } ] },
+      { es: "¿Cómo llego a…?", zh: "我怎么到……？", en: "How do I get to…?",
+        parts: [ { es: "Cómo", zh: "如何" }, { es: "llego", zh: "我到达", note: "动词 llegar" }, { es: "a", zh: "到", note: "介词" } ] },
+      { es: "Está a la derecha", zh: "在右边", en: "It's on the right",
+        parts: [ { es: "Está", zh: "在", note: "动词 estar" }, { es: "a la derecha", zh: "在右边" } ] },
+      { es: "Todo derecho", zh: "一直往前", en: "Straight ahead",
+        parts: [ { es: "Todo", zh: "全程、一直" }, { es: "derecho", zh: "直走", note: "≠ derecha 右" } ] },
+      { es: "¿Me puede ayudar?", zh: "您能帮我吗？", en: "Can you help me?",
+        parts: [ { es: "Me", zh: "帮我", note: "直接宾语" }, { es: "puede", zh: "能", note: "动词 poder" }, { es: "ayudar", zh: "帮助" } ] },
+      { es: "Voy en camión", zh: "我坐公交", en: "I go by bus (MX)",
+        parts: [ { es: "Voy", zh: "我去", note: "动词 ir" }, { es: "en camión", zh: "乘公交", note: "墨西哥叫 bus" } ] }
+    ]
+  },
+  {
+    id: "p-social",
+    title: "社交礼貌",
+    emoji: "😊",
+    color: "#9c36b5",
+    phrases: [
+      { es: "Mucho gusto", zh: "很高兴认识你", en: "Nice to meet you",
+        parts: [ { es: "Mucho", zh: "很多" }, { es: "gusto", zh: "愉快" } ] },
+      { es: "¿Cómo te llamas?", zh: "你叫什么名字？", en: "What's your name?",
+        parts: [ { es: "Cómo", zh: "如何" }, { es: "te", zh: "你自己", note: "反身代词" }, { es: "llamas", zh: "称呼", note: "动词 llamarse" } ] },
+      { es: "Con permiso", zh: "借过 / 失陪一下", en: "Excuse me",
+        parts: [ { es: "Con", zh: "带着" }, { es: "permiso", zh: "许可", note: "礼貌用语" } ] },
+      { es: "No hay problema", zh: "没问题", en: "No problem",
+        parts: [ { es: "No hay", zh: "没有", note: "hay 存在句" }, { es: "problema", zh: "问题", note: "阳性!" } ] },
+      { es: "Que te vaya bien", zh: "一路顺风、保重", en: "Have a good one",
+        parts: [ { es: "Que", zh: "愿", note: "祝愿句" }, { es: "te vaya", zh: "你过得", note: "ir 虚拟式" }, { es: "bien", zh: "好" } ] },
+      { es: "Lo siento mucho", zh: "我很抱歉", en: "I'm so sorry",
+        parts: [ { es: "Lo siento", zh: "对不起", note: "动词 sentir" }, { es: "mucho", zh: "非常" } ] }
+    ]
+  },
+  {
+    id: "p-jerga",
+    title: "地道俚语",
+    emoji: "🔥",
+    color: "#e8590c",
+    phrases: [
+      { es: "¡Órale!", zh: "哇！/ 走起！", en: "Wow! / Let's go! (MX)",
+        parts: [ { es: "Órale", zh: "万能感叹词", note: "无直译" } ] },
+      { es: "¡Qué padre!", zh: "太棒了！", en: "How cool! (MX)",
+        parts: [ { es: "Qué", zh: "多么" }, { es: "padre", zh: "棒", note: "字面“父亲”" } ] },
+      { es: "Está bien chido", zh: "真的很酷", en: "It's really cool (MX)",
+        parts: [ { es: "Está", zh: "是", note: "动词 estar" }, { es: "bien", zh: "很" }, { es: "chido", zh: "酷", note: "墨西哥俚语" } ] },
+      { es: "La neta", zh: "说真的、实话", en: "The truth / for real (MX)",
+        parts: [ { es: "La", zh: "定冠词" }, { es: "neta", zh: "真相", note: "墨西哥俚语" } ] },
+      { es: "Ándale pues", zh: "那好吧、快点", en: "Come on / alright (MX)",
+        parts: [ { es: "Ándale", zh: "快、好吧", note: "动词 andar" }, { es: "pues", zh: "那么" } ] },
+      { es: "Échale ganas", zh: "加油！全力以赴", en: "Give it your all (MX)",
+        parts: [ { es: "Échale", zh: "给它使劲", note: "动词 echar" }, { es: "ganas", zh: "劲头、欲望" } ] }
+    ]
+  }
+];
+
 // 拼写练习用的西语特殊字符
 const SPECIAL_CHARS = ["á", "é", "í", "ó", "ú", "ñ", "ü", "¿", "¡"];
 
-if (typeof module !== "undefined") { module.exports = { UNITS, SPECIAL_CHARS }; }
+if (typeof module !== "undefined") { module.exports = { UNITS, PHRASE_UNITS, SPECIAL_CHARS }; }
