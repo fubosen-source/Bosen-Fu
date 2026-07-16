@@ -2,13 +2,18 @@
 
 深度借鉴 **ScriptPad**（一款以"结构化单元 + 闪卡 + 配对游戏 + 书写练习 + Speak & Compare 跟读对比 + 自定义课程 + 多主题"为核心的语言学习 app）的学习方式，为 Mac 打造的墨西哥西语学习应用。**完全离线，无订阅，数据保存在本机。**
 
-![学习模式](https://img.shields.io/badge/%E5%8D%95%E5%85%83-10-orange) ![词汇](https://img.shields.io/badge/%E8%AF%8D%E6%B1%87-170%2B-green) ![平台](https://img.shields.io/badge/macOS-Electron-blue)
+![单元](https://img.shields.io/badge/%E8%A5%BF%E8%AF%AD%E5%8D%95%E5%85%83-30-orange) ![词汇](https://img.shields.io/badge/%E8%A5%BF%E8%AF%AD%E8%AF%8D%E6%B1%87-478-green) ![英语版](https://img.shields.io/badge/LexiPad%20%E8%8B%B1%E8%AF%AD%E7%89%88-310%E8%AF%8D-blue) ![平台](https://img.shields.io/badge/macOS-Electron-lightgrey)
+
+**内含两个 App，共用同一学习引擎：**
+- 🇲🇽 **PalabraPad** 墨西哥西语版 — 30 个单元 478 词，按 **Nivel 1 入门 / Nivel 2 进阶 / Nivel 3 流利** 分级，覆盖问候、饮食、家庭、身体、衣着、天气、家居、情绪、餐厅、购物、交通、看病、工作、手机、银行、观点表达、墨西哥文化、俚语、紧急情况、派对社交等日常交流场景
+- 🇺🇸 **LexiPad** 美式英语版 — 21 个单元 310 词（每词带**美音 IPA 音标**），Level 1 基础 / Level 2 进阶 / Level 3 地道表达（含日常短语和美式俚语）
+- 侧边栏底部一键互切，两个 App 的学习进度独立保存
 
 ## 功能（对照 ScriptPad）
 
 | ScriptPad 的玩法 | PalabraPad 的实现 |
 |---|---|
-| 结构化单元 + 原生发音 | 10 个单元、170+ 墨西哥特色词汇（elote、camión、alberca、tianguis…），用 macOS 系统的 **es-MX 嗓音（Paulina）** 发音 |
+| 结构化单元 + 原生发音 | 西语 30 单元 478 词按三级难度分组（elote、camión、alberca、tianguis…），用 macOS 系统的 **es-MX 嗓音（Paulina）** 发音；英语版用 **en-US 嗓音（Samantha）** |
 | 带插图的闪卡 | 🃏 翻面闪卡：表情插图 + 中/英释义 + 西语例句，自动朗读 |
 | Word Matching 配对 | 🔗 西语 ↔ 中文点击配对游戏 |
 | Picture Matching 选图 | 🖼️ 听词/看词四选一选图片 |

@@ -1,6 +1,22 @@
 // PalabraPad — 墨西哥西班牙语词汇数据
 // 每个词条: es (西语), en (英语), zh (中文), emoji (插图), ex (西语例句), exZh (例句中文)
 // 词汇特意采用墨西哥用法 (camión=公交车, alberca=游泳池, elote=玉米 等)
+// 单元 level: 1=入门 2=进阶 3=流利 (缺省为 1)
+
+const APP_CONFIG = {
+  id: "palabrapad",
+  name: "PalabraPad",
+  langName: "西班牙语",
+  subName: "墨西哥西语",
+  defaultSubLang: "en",
+  useEsIPA: true,
+  tts: { prefix: "es", preferLang: /es[-_]mx/i, preferName: /paulina|mexico/i, fallbackLang: "es-MX" },
+  kbdTip: "a=á n=ñ, 标点不用打",
+  typeHint: "英文键盘直接打: a=á n=ñ u=ü，重音自动补上，标点不用打 · 打错闪红自动忽略 · 描红关掉就是默写",
+  voiceMissingHint: "未检测到西班牙语语音。macOS 上请到「系统设置 → 辅助功能 → 朗读内容 → 系统嗓音 → 管理嗓音」下载 <b>Paulina (西班牙语·墨西哥)</b>，即可获得地道的墨西哥口音。",
+  voiceTip: "推荐选择带 🏷️ 标记的 es-MX 嗓音（如 Paulina），这是墨西哥口音。",
+  levels: { "1": "🌱 Nivel 1 · 入门 — 打招呼和身边的世界", "2": "🌿 Nivel 2 · 进阶 — 吃住行购、看病办事", "3": "🌳 Nivel 3 · 流利 — 观点、文化和地道表达" }
+};
 
 const UNITS = [
   {
@@ -250,9 +266,429 @@ const UNITS = [
       { es: "echarle ganas", en: "to give it your all (MX)", zh: "加油 / 全力以赴", emoji: "🔥", ex: "¡Échale ganas al español!", exZh: "学西班牙语要加油哦！" }
     ]
   }
+,
+  // ==================== Nivel 1 · 入门 (补充) ====================
+  {
+    id: "cuerpo", title: "El cuerpo · 身体", emoji: "🫀", color: "#d6336c", level: 1,
+    words: [
+      { es: "la cabeza", en: "head", zh: "头", emoji: "🧠", ex: "Me duele la cabeza.", exZh: "我头疼。" },
+      { es: "el ojo", en: "eye", zh: "眼睛", emoji: "👁️", ex: "Tiene ojos grandes.", exZh: "他/她眼睛很大。" },
+      { es: "la nariz", en: "nose", zh: "鼻子", emoji: "👃", ex: "Me pica la nariz.", exZh: "我鼻子痒。" },
+      { es: "la boca", en: "mouth", zh: "嘴", emoji: "👄", ex: "Abre la boca.", exZh: "张开嘴。" },
+      { es: "la oreja", en: "ear", zh: "耳朵", emoji: "👂", ex: "El elefante tiene orejas grandes.", exZh: "大象耳朵很大。" },
+      { es: "el diente", en: "tooth", zh: "牙齿", emoji: "🦷", ex: "Me lavo los dientes.", exZh: "我刷牙。" },
+      { es: "la mano", en: "hand", zh: "手", emoji: "✋", ex: "Dame la mano.", exZh: "把手给我。" },
+      { es: "el brazo", en: "arm", zh: "手臂", emoji: "💪", ex: "Me duele el brazo.", exZh: "我胳膊疼。" },
+      { es: "la pierna", en: "leg", zh: "腿", emoji: "🦵", ex: "Corro con las piernas.", exZh: "我用腿跑步。" },
+      { es: "el pie", en: "foot", zh: "脚", emoji: "🦶", ex: "Voy a pie al trabajo.", exZh: "我走路上班。" },
+      { es: "el pelo", en: "hair", zh: "头发", emoji: "💇", ex: "Tiene el pelo negro.", exZh: "他/她头发是黑色的。" },
+      { es: "la espalda", en: "back", zh: "背", emoji: "🧍", ex: "Me duele la espalda.", exZh: "我背疼。" },
+      { es: "el corazón", en: "heart", zh: "心脏", emoji: "❤️", ex: "Mi corazón late rápido.", exZh: "我的心跳得很快。" },
+      { es: "el estómago", en: "stomach", zh: "胃", emoji: "🫃", ex: "Me duele el estómago.", exZh: "我胃疼。" },
+      { es: "la cara", en: "face", zh: "脸", emoji: "🙂", ex: "Lávate la cara.", exZh: "洗把脸。" },
+      { es: "el dedo", en: "finger", zh: "手指", emoji: "👆", ex: "Me corté el dedo.", exZh: "我割到手指了。" }
+    ]
+  },
+  {
+    id: "ropa", title: "La ropa · 衣服", emoji: "👕", color: "#7048e8", level: 1,
+    words: [
+      { es: "la playera", en: "T-shirt (MX)", zh: "T恤（墨西哥叫法）", emoji: "👕", ex: "Traigo una playera blanca.", exZh: "我穿着白T恤。" },
+      { es: "la camisa", en: "shirt", zh: "衬衫", emoji: "👔", ex: "La camisa está limpia.", exZh: "衬衫是干净的。" },
+      { es: "el pantalón", en: "pants", zh: "裤子", emoji: "👖", ex: "Este pantalón me queda bien.", exZh: "这条裤子很合身。" },
+      { es: "los zapatos", en: "shoes", zh: "鞋", emoji: "👟", ex: "Mis zapatos son nuevos.", exZh: "我的鞋是新的。" },
+      { es: "el vestido", en: "dress", zh: "连衣裙", emoji: "👗", ex: "Qué bonito vestido.", exZh: "裙子真漂亮。" },
+      { es: "la falda", en: "skirt", zh: "半身裙", emoji: "🩱", ex: "La falda es azul.", exZh: "裙子是蓝色的。" },
+      { es: "el sombrero", en: "hat", zh: "帽子", emoji: "👒", ex: "El mariachi usa sombrero.", exZh: "墨西哥乐手戴帽子。" },
+      { es: "la chamarra", en: "jacket (MX)", zh: "夹克（墨西哥叫法）", emoji: "🧥", ex: "Hace frío, trae chamarra.", exZh: "冷了，带上夹克。" },
+      { es: "los calcetines", en: "socks", zh: "袜子", emoji: "🧦", ex: "Calcetines de colores.", exZh: "彩色的袜子。" },
+      { es: "los lentes", en: "glasses (MX)", zh: "眼镜（墨西哥叫法）", emoji: "👓", ex: "No veo sin lentes.", exZh: "不戴眼镜我看不见。" },
+      { es: "la bolsa", en: "bag / purse (MX)", zh: "包（墨西哥叫法）", emoji: "👜", ex: "Dejé la bolsa en casa.", exZh: "我把包忘在家里了。" },
+      { es: "el reloj", en: "watch / clock", zh: "手表 / 钟", emoji: "⌚", ex: "Mi reloj está atrasado.", exZh: "我的表慢了。" },
+      { es: "la gorra", en: "cap", zh: "棒球帽", emoji: "🧢", ex: "Siempre usa gorra.", exZh: "他总是戴棒球帽。" },
+      { es: "el traje", en: "suit", zh: "西装", emoji: "🤵", ex: "Lleva traje al trabajo.", exZh: "他穿西装上班。" }
+    ]
+  },
+  {
+    id: "clima", title: "El clima · 天气", emoji: "🌦️", color: "#1098ad", level: 1,
+    words: [
+      { es: "hace calor", en: "it's hot", zh: "天气热", emoji: "🥵", ex: "En mayo hace mucho calor.", exZh: "五月天气很热。" },
+      { es: "hace frío", en: "it's cold", zh: "天气冷", emoji: "🥶", ex: "En la noche hace frío.", exZh: "晚上很冷。" },
+      { es: "hace sol", en: "it's sunny", zh: "晴天", emoji: "☀️", ex: "Hoy hace sol, vamos al parque.", exZh: "今天出太阳，我们去公园吧。" },
+      { es: "llueve", en: "it rains", zh: "下雨", emoji: "🌧️", ex: "En junio llueve mucho.", exZh: "六月经常下雨。" },
+      { es: "la lluvia", en: "rain", zh: "雨", emoji: "💧", ex: "Me gusta el sonido de la lluvia.", exZh: "我喜欢雨声。" },
+      { es: "el viento", en: "wind", zh: "风", emoji: "🌬️", ex: "Hay mucho viento hoy.", exZh: "今天风很大。" },
+      { es: "la nube", en: "cloud", zh: "云", emoji: "☁️", ex: "El cielo está lleno de nubes.", exZh: "天上全是云。" },
+      { es: "el cielo", en: "sky", zh: "天空", emoji: "🌌", ex: "El cielo está despejado.", exZh: "天空晴朗。" },
+      { es: "la tormenta", en: "storm", zh: "暴风雨", emoji: "⛈️", ex: "Viene una tormenta fuerte.", exZh: "一场大暴风雨要来了。" },
+      { es: "nieva", en: "it snows", zh: "下雪", emoji: "❄️", ex: "En México casi nunca nieva.", exZh: "墨西哥几乎不下雪。" },
+      { es: "húmedo", en: "humid", zh: "潮湿的", emoji: "💦", ex: "Cancún es muy húmedo.", exZh: "坎昆非常潮湿。" },
+      { es: "seco", en: "dry", zh: "干燥的", emoji: "🏜️", ex: "El norte es seco.", exZh: "北部很干燥。" },
+      { es: "la temperatura", en: "temperature", zh: "气温", emoji: "🌡️", ex: "¿Cuál es la temperatura hoy?", exZh: "今天气温多少？" },
+      { es: "el arcoíris", en: "rainbow", zh: "彩虹", emoji: "🌈", ex: "Salió un arcoíris después de la lluvia.", exZh: "雨后出了彩虹。" }
+    ]
+  },
+  {
+    id: "casa", title: "La casa · 家居", emoji: "🏡", color: "#e8590c", level: 1,
+    words: [
+      { es: "la casa", en: "house / home", zh: "房子 / 家", emoji: "🏠", ex: "Mi casa es tu casa.", exZh: "我家就是你家。（墨西哥待客名言）" },
+      { es: "el cuarto", en: "room / bedroom (MX)", zh: "房间（墨西哥叫法）", emoji: "🛏️", ex: "Mi cuarto es pequeño.", exZh: "我的房间很小。" },
+      { es: "la cocina", en: "kitchen", zh: "厨房", emoji: "🍳", ex: "Mamá está en la cocina.", exZh: "妈妈在厨房。" },
+      { es: "el baño", en: "bathroom", zh: "洗手间", emoji: "🚿", ex: "¿Dónde está el baño?", exZh: "洗手间在哪儿？" },
+      { es: "la sala", en: "living room", zh: "客厅", emoji: "🛋️", ex: "Vemos la tele en la sala.", exZh: "我们在客厅看电视。" },
+      { es: "la mesa", en: "table", zh: "桌子", emoji: "🍽️", ex: "La comida está en la mesa.", exZh: "饭在桌上。" },
+      { es: "la silla", en: "chair", zh: "椅子", emoji: "🪑", ex: "Siéntate en la silla.", exZh: "坐在椅子上。" },
+      { es: "la cama", en: "bed", zh: "床", emoji: "🛌", ex: "Quiero dormir en mi cama.", exZh: "我想在我的床上睡觉。" },
+      { es: "la puerta", en: "door", zh: "门", emoji: "🚪", ex: "Cierra la puerta, por favor.", exZh: "请把门关上。" },
+      { es: "la ventana", en: "window", zh: "窗户", emoji: "🪟", ex: "Abre la ventana.", exZh: "打开窗户。" },
+      { es: "la luz", en: "light", zh: "灯 / 光", emoji: "💡", ex: "Apaga la luz.", exZh: "关灯。" },
+      { es: "el refrigerador", en: "fridge", zh: "冰箱", emoji: "🧊", ex: "Hay agua en el refrigerador.", exZh: "冰箱里有水。" },
+      { es: "la estufa", en: "stove (MX)", zh: "炉灶（墨西哥叫法）", emoji: "🔥", ex: "La sopa está en la estufa.", exZh: "汤在炉子上。" },
+      { es: "la llave", en: "key / faucet (MX)", zh: "钥匙 / 水龙头", emoji: "🔑", ex: "Perdí mis llaves.", exZh: "我把钥匙丢了。" },
+      { es: "la escalera", en: "stairs", zh: "楼梯", emoji: "🪜", ex: "Sube por la escalera.", exZh: "走楼梯上去。" },
+      { es: "el piso", en: "floor / story (MX)", zh: "地板 / 楼层", emoji: "🏢", ex: "Vivo en el tercer piso.", exZh: "我住三楼。" },
+      { es: "la renta", en: "rent (MX)", zh: "房租（墨西哥叫法）", emoji: "💵", ex: "La renta sube cada año.", exZh: "房租每年都涨。" },
+      { es: "el vecino", en: "neighbor", zh: "邻居", emoji: "🏘️", ex: "Mi vecino es muy amable.", exZh: "我的邻居很友善。" }
+    ]
+  },
+  {
+    id: "sentimientos", title: "Los sentimientos · 情绪", emoji: "💛", color: "#f59f00", level: 1,
+    words: [
+      { es: "feliz", en: "happy", zh: "开心的", emoji: "😄", ex: "Estoy muy feliz hoy.", exZh: "我今天很开心。" },
+      { es: "triste", en: "sad", zh: "伤心的", emoji: "😢", ex: "¿Por qué estás triste?", exZh: "你为什么难过？" },
+      { es: "enojado", en: "angry (MX)", zh: "生气的（墨西哥用法）", emoji: "😠", ex: "El jefe está enojado.", exZh: "老板生气了。" },
+      { es: "cansado", en: "tired", zh: "累的", emoji: "🥱", ex: "Estoy bien cansado.", exZh: "我特别累。" },
+      { es: "emocionado", en: "excited", zh: "兴奋的", emoji: "🤩", ex: "Estoy emocionado por el viaje.", exZh: "要去旅行我很兴奋。" },
+      { es: "nervioso", en: "nervous", zh: "紧张的", emoji: "😬", ex: "Estoy nervioso por el examen.", exZh: "考试让我很紧张。" },
+      { es: "aburrido", en: "bored / boring", zh: "无聊的", emoji: "😑", ex: "La película está aburrida.", exZh: "这部电影很无聊。" },
+      { es: "preocupado", en: "worried", zh: "担心的", emoji: "😟", ex: "Mamá está preocupada.", exZh: "妈妈很担心。" },
+      { es: "sorprendido", en: "surprised", zh: "惊讶的", emoji: "😲", ex: "Me quedé sorprendido.", exZh: "我很惊讶。" },
+      { es: "enamorado", en: "in love", zh: "恋爱中的", emoji: "😍", ex: "Está enamorado de ella.", exZh: "他爱上她了。" },
+      { es: "asustado", en: "scared", zh: "害怕的", emoji: "😨", ex: "El perro está asustado.", exZh: "狗吓坏了。" },
+      { es: "tranquilo", en: "calm", zh: "平静的 / 别急", emoji: "😌", ex: "Tranquilo, todo va a salir bien.", exZh: "别急，一切都会好的。" },
+      { es: "orgulloso", en: "proud", zh: "骄傲的", emoji: "🏅", ex: "Estoy orgulloso de ti.", exZh: "我为你骄傲。" },
+      { es: "celoso", en: "jealous", zh: "嫉妒的", emoji: "😒", ex: "No seas celoso.", exZh: "别吃醋。" }
+    ]
+  },
+  // ==================== Nivel 2 · 进阶 ====================
+  {
+    id: "restaurante", title: "En el restaurante · 餐厅点餐", emoji: "🍽️", color: "#2f9e44", level: 2,
+    words: [
+      { es: "el menú", en: "menu", zh: "菜单", emoji: "📋", ex: "¿Me trae el menú, por favor?", exZh: "请给我菜单好吗？" },
+      { es: "el mesero", en: "waiter (MX)", zh: "服务员（墨西哥叫法）", emoji: "🤵", ex: "El mesero es muy atento.", exZh: "服务员很周到。" },
+      { es: "ordenar", en: "to order (MX)", zh: "点餐（墨西哥用法）", emoji: "📝", ex: "¿Listos para ordenar?", exZh: "可以点餐了吗？" },
+      { es: "el platillo", en: "dish (MX)", zh: "菜品（墨西哥叫法）", emoji: "🍛", ex: "¿Cuál es el platillo del día?", exZh: "今日特色菜是什么？" },
+      { es: "la bebida", en: "drink", zh: "饮料", emoji: "🥤", ex: "¿Qué bebida quieres?", exZh: "你想喝什么？" },
+      { es: "el refresco", en: "soda (MX)", zh: "汽水（墨西哥叫法）", emoji: "🧋", ex: "Un refresco bien frío.", exZh: "一瓶冰镇汽水。" },
+      { es: "el vaso", en: "glass / cup", zh: "杯子", emoji: "🥛", ex: "Un vaso de agua, por favor.", exZh: "请来一杯水。" },
+      { es: "el plato", en: "plate", zh: "盘子", emoji: "🍽️", ex: "El plato está caliente.", exZh: "盘子很烫。" },
+      { es: "el tenedor", en: "fork", zh: "叉子", emoji: "🍴", ex: "Me falta un tenedor.", exZh: "我少一把叉子。" },
+      { es: "la cuchara", en: "spoon", zh: "勺子", emoji: "🥄", ex: "Una cuchara para la sopa.", exZh: "喝汤要一把勺子。" },
+      { es: "el cuchillo", en: "knife", zh: "刀", emoji: "🔪", ex: "El cuchillo no corta.", exZh: "这刀不快。" },
+      { es: "la servilleta", en: "napkin", zh: "餐巾纸", emoji: "🧻", ex: "¿Me pasas una servilleta?", exZh: "递我一张餐巾纸好吗？" },
+      { es: "para llevar", en: "to go / takeout", zh: "打包带走", emoji: "🥡", ex: "Dos tacos para llevar.", exZh: "两个塔可打包。" },
+      { es: "el desayuno", en: "breakfast", zh: "早餐", emoji: "🍳", ex: "El desayuno es a las ocho.", exZh: "早餐八点开始。" },
+      { es: "la comida", en: "lunch / food (MX)", zh: "午饭（墨西哥用法）", emoji: "🌯", ex: "La comida es a las dos.", exZh: "午饭两点吃。（墨西哥午饭较晚）" },
+      { es: "la cena", en: "dinner", zh: "晚餐", emoji: "🌙", ex: "¿Qué hay de cenar?", exZh: "晚饭吃什么？" },
+      { es: "¡provecho!", en: "enjoy your meal (MX)", zh: "用餐愉快（墨西哥习惯用语）", emoji: "😋", ex: "—¡Provecho! —Gracias.", exZh: "—用餐愉快！—谢谢。" }
+    ]
+  },
+  {
+    id: "compras", title: "De compras · 购物", emoji: "🛍️", color: "#e64980", level: 2,
+    words: [
+      { es: "la tienda", en: "store", zh: "商店", emoji: "🏪", ex: "La tienda abre a las nueve.", exZh: "商店九点开门。" },
+      { es: "el precio", en: "price", zh: "价格", emoji: "🏷️", ex: "El precio está en la etiqueta.", exZh: "价格在标签上。" },
+      { es: "caro", en: "expensive", zh: "贵的", emoji: "💎", ex: "Está muy caro, ¿no?", exZh: "太贵了吧？" },
+      { es: "barato", en: "cheap", zh: "便宜的", emoji: "🪙", ex: "En el tianguis es más barato.", exZh: "集市上更便宜。" },
+      { es: "el descuento", en: "discount", zh: "折扣", emoji: "🔖", ex: "¿Hay descuento si pago en efectivo?", exZh: "付现金有折扣吗？" },
+      { es: "la talla", en: "size (clothes)", zh: "尺码", emoji: "📏", ex: "¿Tiene una talla más grande?", exZh: "有大一码的吗？" },
+      { es: "el efectivo", en: "cash", zh: "现金", emoji: "💵", ex: "Solo aceptan efectivo.", exZh: "只收现金。" },
+      { es: "la tarjeta", en: "card", zh: "银行卡", emoji: "💳", ex: "¿Aceptan tarjeta?", exZh: "能刷卡吗？" },
+      { es: "pagar", en: "to pay", zh: "付钱", emoji: "💰", ex: "¿Dónde puedo pagar?", exZh: "在哪里付款？" },
+      { es: "el recibo", en: "receipt", zh: "小票", emoji: "🧾", ex: "Guarda el recibo.", exZh: "留好小票。" },
+      { es: "la oferta", en: "sale / special offer", zh: "特价", emoji: "🛍️", ex: "Todo está en oferta.", exZh: "全场特价。" },
+      { es: "probarse", en: "to try on", zh: "试穿", emoji: "🪞", ex: "¿Me lo puedo probar?", exZh: "我能试穿吗？" },
+      { es: "el cambio", en: "change (money)", zh: "找零", emoji: "🪙", ex: "Aquí está su cambio.", exZh: "这是找您的零钱。" },
+      { es: "¿cuánto sale?", en: "how much? (MX slang)", zh: "多少钱？（墨西哥口语）", emoji: "💬", ex: "¿Cuánto sale todo?", exZh: "一共多少钱？" },
+      { es: "regatear", en: "to bargain", zh: "讨价还价", emoji: "🤝", ex: "En el tianguis puedes regatear.", exZh: "在集市上可以砍价。" },
+      { es: "la bolsa de plástico", en: "plastic bag", zh: "塑料袋", emoji: "🛒", ex: "¿Quiere bolsa?", exZh: "要袋子吗？" }
+    ]
+  },
+  {
+    id: "transporte", title: "Transporte y viajes · 交通出行", emoji: "✈️", color: "#1971c2", level: 2,
+    words: [
+      { es: "el aeropuerto", en: "airport", zh: "机场", emoji: "🛫", ex: "Voy al aeropuerto en la mañana.", exZh: "我早上去机场。" },
+      { es: "el vuelo", en: "flight", zh: "航班", emoji: "✈️", ex: "El vuelo sale a las diez.", exZh: "航班十点起飞。" },
+      { es: "el boleto", en: "ticket (MX)", zh: "票（墨西哥叫法）", emoji: "🎫", ex: "Compré el boleto en línea.", exZh: "我在网上买的票。" },
+      { es: "la maleta", en: "suitcase", zh: "行李箱", emoji: "🧳", ex: "Mi maleta pesa mucho.", exZh: "我的行李箱很重。" },
+      { es: "el pasaporte", en: "passport", zh: "护照", emoji: "🛂", ex: "No olvides tu pasaporte.", exZh: "别忘了护照。" },
+      { es: "la aduana", en: "customs", zh: "海关", emoji: "🛃", ex: "Pasamos por la aduana.", exZh: "我们过了海关。" },
+      { es: "el taxi", en: "taxi", zh: "出租车", emoji: "🚕", ex: "Pedimos un taxi por aplicación.", exZh: "我们用软件叫了出租车。" },
+      { es: "el pesero", en: "minibus (MX)", zh: "小巴（墨西哥特色）", emoji: "🚐", ex: "El pesero cuesta ocho pesos.", exZh: "小巴八比索。" },
+      { es: "la parada", en: "bus stop", zh: "车站（站点）", emoji: "🚏", ex: "Bájate en la próxima parada.", exZh: "下一站下车。" },
+      { es: "derecho", en: "straight ahead (MX)", zh: "直走（墨西哥用法）", emoji: "⬆️", ex: "Siga derecho dos cuadras.", exZh: "直走两个街区。" },
+      { es: "la cuadra", en: "city block (MX)", zh: "街区（一个路口的距离）", emoji: "🏙️", ex: "Está a tres cuadras.", exZh: "在三个街区外。" },
+      { es: "manejar", en: "to drive (MX)", zh: "开车（墨西哥用法）", emoji: "🚗", ex: "No sé manejar.", exZh: "我不会开车。" },
+      { es: "la gasolina", en: "gasoline", zh: "汽油", emoji: "⛽", ex: "La gasolina subió otra vez.", exZh: "油价又涨了。" },
+      { es: "el tráfico", en: "traffic", zh: "堵车", emoji: "🚦", ex: "Hay mucho tráfico en la CDMX.", exZh: "墨西哥城堵车很严重。" },
+      { es: "la licencia", en: "driver's license", zh: "驾照", emoji: "🪪", ex: "Saqué mi licencia ayer.", exZh: "我昨天拿到驾照了。" },
+      { es: "el hotel", en: "hotel", zh: "酒店", emoji: "🏨", ex: "Reservé un hotel en la playa.", exZh: "我订了海边的酒店。" }
+    ]
+  },
+  {
+    id: "salud", title: "La salud · 健康看病", emoji: "🩺", color: "#c92a2a", level: 2,
+    words: [
+      { es: "el doctor", en: "doctor", zh: "医生", emoji: "👨‍⚕️", ex: "Necesito ver al doctor.", exZh: "我需要看医生。" },
+      { es: "la medicina", en: "medicine", zh: "药", emoji: "💊", ex: "Toma la medicina con comida.", exZh: "药要和食物一起吃。" },
+      { es: "la gripa", en: "flu / cold (MX)", zh: "感冒（墨西哥叫法）", emoji: "🤧", ex: "Tengo gripa desde ayer.", exZh: "我从昨天开始感冒。" },
+      { es: "la tos", en: "cough", zh: "咳嗽", emoji: "😷", ex: "No se me quita la tos.", exZh: "我的咳嗽一直不好。" },
+      { es: "la fiebre", en: "fever", zh: "发烧", emoji: "🤒", ex: "El niño tiene fiebre.", exZh: "孩子发烧了。" },
+      { es: "el dolor", en: "pain", zh: "疼痛", emoji: "😖", ex: "Tengo dolor de cabeza.", exZh: "我头疼。" },
+      { es: "la pastilla", en: "pill", zh: "药片", emoji: "💊", ex: "Una pastilla cada ocho horas.", exZh: "每八小时一片。" },
+      { es: "la receta", en: "prescription / recipe", zh: "处方 / 食谱", emoji: "📄", ex: "Necesita receta médica.", exZh: "这个需要处方。" },
+      { es: "la cita", en: "appointment", zh: "预约", emoji: "📅", ex: "Tengo cita a las cuatro.", exZh: "我四点有预约。" },
+      { es: "la sangre", en: "blood", zh: "血", emoji: "🩸", ex: "Me sacaron sangre.", exZh: "他们给我抽了血。" },
+      { es: "la vacuna", en: "vaccine", zh: "疫苗", emoji: "💉", ex: "Ya me puse la vacuna.", exZh: "我已经打了疫苗。" },
+      { es: "descansar", en: "to rest", zh: "休息", emoji: "😴", ex: "Debes descansar más.", exZh: "你应该多休息。" },
+      { es: "mejorarse", en: "to get better", zh: "好转 / 康复", emoji: "🌤️", ex: "¡Que te mejores pronto!", exZh: "祝你早日康复！" },
+      { es: "el seguro", en: "insurance", zh: "保险", emoji: "🛡️", ex: "¿Tienes seguro médico?", exZh: "你有医保吗？" },
+      { es: "embarazada", en: "pregnant", zh: "怀孕的", emoji: "🤰", ex: "Mi hermana está embarazada.", exZh: "我姐姐怀孕了。" },
+      { es: "la emergencia", en: "emergency", zh: "急诊 / 紧急情况", emoji: "🚨", ex: "Vamos a emergencias.", exZh: "我们去急诊。" }
+    ]
+  },
+  {
+    id: "trabajo", title: "Trabajo y escuela · 工作学习", emoji: "💼", color: "#5c940d", level: 2,
+    words: [
+      { es: "la oficina", en: "office", zh: "办公室", emoji: "🏢", ex: "Trabajo en una oficina.", exZh: "我在办公室工作。" },
+      { es: "el jefe", en: "boss", zh: "老板", emoji: "👔", ex: "Mi jefe es muy exigente.", exZh: "我老板要求很高。" },
+      { es: "el sueldo", en: "salary", zh: "工资", emoji: "💰", ex: "El sueldo no alcanza.", exZh: "工资不够花。" },
+      { es: "la junta", en: "meeting (MX)", zh: "会议（墨西哥叫法）", emoji: "👥", ex: "Tengo junta a las diez.", exZh: "我十点开会。" },
+      { es: "el correo", en: "email / mail", zh: "邮件", emoji: "📧", ex: "Te mando un correo.", exZh: "我给你发邮件。" },
+      { es: "la computadora", en: "computer (MX)", zh: "电脑（墨西哥叫法）", emoji: "💻", ex: "Mi computadora es lenta.", exZh: "我的电脑很慢。" },
+      { es: "el proyecto", en: "project", zh: "项目", emoji: "📊", ex: "El proyecto va bien.", exZh: "项目进展顺利。" },
+      { es: "la fecha límite", en: "deadline", zh: "截止日期", emoji: "⏰", ex: "La fecha límite es el viernes.", exZh: "截止日期是周五。" },
+      { es: "contratar", en: "to hire", zh: "雇用", emoji: "🤝", ex: "Van a contratar más gente.", exZh: "他们要招更多人。" },
+      { es: "renunciar", en: "to quit", zh: "辞职", emoji: "🚪", ex: "Pienso renunciar este mes.", exZh: "我打算这个月辞职。" },
+      { es: "el compañero", en: "coworker / classmate", zh: "同事 / 同学", emoji: "🧑‍🤝‍🧑", ex: "Mis compañeros son buena onda.", exZh: "我的同事人都很好。" },
+      { es: "la carrera", en: "major / career", zh: "专业 / 职业", emoji: "🎓", ex: "¿Qué carrera estudiaste?", exZh: "你大学学的什么专业？" },
+      { es: "el examen", en: "exam", zh: "考试", emoji: "📝", ex: "Mañana tengo examen.", exZh: "我明天有考试。" },
+      { es: "la tarea", en: "homework / task", zh: "作业 / 任务", emoji: "📚", ex: "No he hecho la tarea.", exZh: "我还没写作业。" },
+      { es: "aprobar", en: "to pass (exam)", zh: "通过（考试）", emoji: "✅", ex: "Aprobé el examen de español.", exZh: "我通过了西语考试。" },
+      { es: "la beca", en: "scholarship", zh: "奖学金", emoji: "🏅", ex: "Gané una beca para estudiar.", exZh: "我拿到了奖学金。" }
+    ]
+  },
+  {
+    id: "tecnologia", title: "Tecnología · 手机网络", emoji: "📱", color: "#364fc7", level: 2,
+    words: [
+      { es: "el celular", en: "cell phone (MX)", zh: "手机（墨西哥叫法）", emoji: "📱", ex: "Se me acabó la pila del celular.", exZh: "我手机没电了。" },
+      { es: "el wifi", en: "wifi", zh: "无线网", emoji: "📶", ex: "¿Cuál es la clave del wifi?", exZh: "wifi密码是多少？" },
+      { es: "la contraseña", en: "password", zh: "密码", emoji: "🔑", ex: "Olvidé mi contraseña.", exZh: "我忘记密码了。" },
+      { es: "la aplicación", en: "app", zh: "应用程序", emoji: "📲", ex: "Descarga la aplicación.", exZh: "下载这个应用。" },
+      { es: "el mensaje", en: "message", zh: "消息 / 短信", emoji: "💬", ex: "Mándame un mensaje.", exZh: "给我发消息。" },
+      { es: "la foto", en: "photo", zh: "照片", emoji: "📷", ex: "¿Nos tomas una foto?", exZh: "能帮我们拍张照吗？" },
+      { es: "el video", en: "video", zh: "视频", emoji: "🎬", ex: "El video se hizo viral.", exZh: "这个视频火了。" },
+      { es: "la pantalla", en: "screen", zh: "屏幕", emoji: "🖥️", ex: "Se rompió la pantalla.", exZh: "屏幕碎了。" },
+      { es: "cargar", en: "to charge", zh: "充电", emoji: "🔋", ex: "Necesito cargar mi celular.", exZh: "我需要给手机充电。" },
+      { es: "descargar", en: "to download", zh: "下载", emoji: "⬇️", ex: "Estoy descargando la película.", exZh: "我在下载电影。" },
+      { es: "las redes sociales", en: "social media", zh: "社交网络", emoji: "🌐", ex: "Pasa horas en redes sociales.", exZh: "他在社交网络上花好几个小时。" },
+      { es: "los audífonos", en: "headphones (MX)", zh: "耳机（墨西哥叫法）", emoji: "🎧", ex: "Traigo mis audífonos nuevos.", exZh: "我带着新耳机。" },
+      { es: "la pila", en: "battery (MX)", zh: "电池（墨西哥叫法）", emoji: "🔋", ex: "Tengo poca pila.", exZh: "我电量不多了。" },
+      { es: "en línea", en: "online", zh: "在线", emoji: "🟢", ex: "Compré todo en línea.", exZh: "我全在网上买的。" }
+    ]
+  },
+  {
+    id: "dinero", title: "El dinero · 钱和银行", emoji: "💰", color: "#b8860b", level: 2,
+    words: [
+      { es: "el cajero", en: "ATM", zh: "取款机", emoji: "🏧", ex: "¿Dónde hay un cajero?", exZh: "哪里有取款机？" },
+      { es: "la cuenta bancaria", en: "bank account", zh: "银行账户", emoji: "🏦", ex: "Abrí una cuenta bancaria.", exZh: "我开了个银行账户。" },
+      { es: "ahorrar", en: "to save money", zh: "存钱 / 攒钱", emoji: "🐷", ex: "Estoy ahorrando para viajar.", exZh: "我在攒钱去旅行。" },
+      { es: "gastar", en: "to spend", zh: "花钱", emoji: "💸", ex: "Gasté mucho este mes.", exZh: "我这个月花多了。" },
+      { es: "el préstamo", en: "loan", zh: "贷款", emoji: "📄", ex: "Pedí un préstamo al banco.", exZh: "我向银行申请了贷款。" },
+      { es: "la deuda", en: "debt", zh: "债务", emoji: "📉", ex: "Ya pagué todas mis deudas.", exZh: "我把债都还清了。" },
+      { es: "el billete", en: "bill (money)", zh: "纸币", emoji: "💵", ex: "¿Tienes cambio de un billete de 500?", exZh: "500的纸币你找得开吗？" },
+      { es: "la moneda", en: "coin / currency", zh: "硬币 / 货币", emoji: "🪙", ex: "Colecciono monedas antiguas.", exZh: "我收集古币。" },
+      { es: "la quincena", en: "biweekly pay (MX)", zh: "半月薪（墨西哥发薪制）", emoji: "📅", ex: "Ya llegó la quincena.", exZh: "发工资啦。（每月15日和月底）" },
+      { es: "deber", en: "to owe / must", zh: "欠 / 应该", emoji: "🧾", ex: "Me debes cien pesos.", exZh: "你欠我一百比索。" },
+      { es: "la factura", en: "invoice", zh: "发票", emoji: "🧾", ex: "¿Necesita factura?", exZh: "您需要发票吗？" },
+      { es: "el impuesto", en: "tax", zh: "税", emoji: "🏛️", ex: "Los impuestos suben cada año.", exZh: "税每年都涨。" },
+      { es: "transferir", en: "to transfer money", zh: "转账", emoji: "📲", ex: "Te transfiero ahorita.", exZh: "我马上给你转账。" },
+      { es: "gratis", en: "free (no cost)", zh: "免费", emoji: "🆓", ex: "La entrada es gratis.", exZh: "入场免费。" }
+    ]
+  },
+  {
+    id: "adjetivos", title: "Adjetivos útiles · 常用形容词", emoji: "✨", color: "#9c36b5", level: 2,
+    words: [
+      { es: "grande", en: "big", zh: "大的", emoji: "🐘", ex: "La ciudad es muy grande.", exZh: "这座城市很大。" },
+      { es: "chico", en: "small (MX)", zh: "小的（墨西哥常用）", emoji: "🐭", ex: "El cuarto está muy chico.", exZh: "房间太小了。" },
+      { es: "nuevo", en: "new", zh: "新的", emoji: "✨", ex: "Estrené zapatos nuevos.", exZh: "我穿上了新鞋。" },
+      { es: "viejo", en: "old", zh: "旧的 / 老的", emoji: "🏚️", ex: "Mi coche ya está viejo.", exZh: "我的车已经旧了。" },
+      { es: "bueno", en: "good", zh: "好的", emoji: "👍", ex: "Es un buen amigo.", exZh: "他是个好朋友。" },
+      { es: "malo", en: "bad", zh: "坏的", emoji: "👎", ex: "El clima está malo.", exZh: "天气不好。" },
+      { es: "bonito", en: "pretty", zh: "漂亮的", emoji: "🌸", ex: "Qué bonita está la playa.", exZh: "海滩真漂亮。" },
+      { es: "feo", en: "ugly", zh: "丑的 / 糟糕的", emoji: "🙈", ex: "El tráfico está feo hoy.", exZh: "今天堵车堵得厉害。" },
+      { es: "rápido", en: "fast", zh: "快的", emoji: "🏃", ex: "El metro es más rápido.", exZh: "地铁更快。" },
+      { es: "lento", en: "slow", zh: "慢的", emoji: "🐢", ex: "El internet está lento.", exZh: "网速很慢。" },
+      { es: "fácil", en: "easy", zh: "容易的", emoji: "✅", ex: "El español no es fácil.", exZh: "西班牙语不容易。" },
+      { es: "difícil", en: "difficult", zh: "难的", emoji: "🧗", ex: "El examen estuvo difícil.", exZh: "考试很难。" },
+      { es: "caliente", en: "hot (temperature)", zh: "烫的 / 热的", emoji: "🔥", ex: "El café está muy caliente.", exZh: "咖啡很烫。" },
+      { es: "frío", en: "cold", zh: "冷的 / 冰的", emoji: "🧊", ex: "La sopa ya está fría.", exZh: "汤已经凉了。" },
+      { es: "limpio", en: "clean", zh: "干净的", emoji: "🧼", ex: "El baño está limpio.", exZh: "洗手间很干净。" },
+      { es: "sucio", en: "dirty", zh: "脏的", emoji: "🧹", ex: "Los platos están sucios.", exZh: "盘子是脏的。" },
+      { es: "lleno", en: "full", zh: "满的 / 吃饱的", emoji: "🥛", ex: "Estoy lleno, gracias.", exZh: "我吃饱了，谢谢。" },
+      { es: "vacío", en: "empty", zh: "空的", emoji: "🕳️", ex: "El refri está vacío.", exZh: "冰箱空了。" }
+    ]
+  },
+  {
+    id: "preguntas", title: "Preguntas y conectores · 疑问与连接", emoji: "❓", color: "#0c8599", level: 2,
+    words: [
+      { es: "¿qué?", en: "what?", zh: "什么？", emoji: "❓", ex: "¿Qué quieres comer?", exZh: "你想吃什么？" },
+      { es: "¿quién?", en: "who?", zh: "谁？", emoji: "👤", ex: "¿Quién es ella?", exZh: "她是谁？" },
+      { es: "¿dónde?", en: "where?", zh: "哪里？", emoji: "📍", ex: "¿Dónde vives?", exZh: "你住在哪里？" },
+      { es: "¿cuándo?", en: "when?", zh: "什么时候？", emoji: "🕐", ex: "¿Cuándo llegas?", exZh: "你什么时候到？" },
+      { es: "¿por qué?", en: "why?", zh: "为什么？", emoji: "🤔", ex: "¿Por qué estudias español?", exZh: "你为什么学西班牙语？" },
+      { es: "porque", en: "because", zh: "因为", emoji: "💡", ex: "Porque me encanta México.", exZh: "因为我爱墨西哥。" },
+      { es: "¿cómo?", en: "how?", zh: "怎么？", emoji: "🛠️", ex: "¿Cómo se dice esto en español?", exZh: "这个用西班牙语怎么说？" },
+      { es: "¿cuál?", en: "which?", zh: "哪个？", emoji: "👉", ex: "¿Cuál prefieres?", exZh: "你更喜欢哪个？" },
+      { es: "pero", en: "but", zh: "但是", emoji: "↔️", ex: "Quiero ir, pero no puedo.", exZh: "我想去，但是去不了。" },
+      { es: "también", en: "also", zh: "也", emoji: "➕", ex: "Yo también hablo chino.", exZh: "我也会说中文。" },
+      { es: "entonces", en: "then / so", zh: "那么 / 然后", emoji: "➡️", ex: "Entonces, ¿nos vamos?", exZh: "那我们走吧？" },
+      { es: "aunque", en: "although", zh: "虽然 / 即使", emoji: "🤷", ex: "Voy aunque llueva.", exZh: "就算下雨我也去。" },
+      { es: "si", en: "if", zh: "如果", emoji: "🔀", ex: "Si puedes, ven temprano.", exZh: "如果可以的话早点来。" },
+      { es: "siempre", en: "always", zh: "总是", emoji: "♾️", ex: "Siempre llego temprano.", exZh: "我总是到得早。" },
+      { es: "nunca", en: "never", zh: "从不", emoji: "🚫", ex: "Nunca he ido a Oaxaca.", exZh: "我从没去过瓦哈卡。" },
+      { es: "a veces", en: "sometimes", zh: "有时候", emoji: "🎲", ex: "A veces como tacos de canasta.", exZh: "我有时吃篮子塔可。" }
+    ]
+  },
+  {
+    id: "verbos2", title: "Más verbos · 进阶动词", emoji: "⚡", color: "#e8590c", level: 2,
+    words: [
+      { es: "pensar", en: "to think", zh: "想 / 认为", emoji: "💭", ex: "¿Qué piensas de México?", exZh: "你觉得墨西哥怎么样？" },
+      { es: "saber", en: "to know (facts)", zh: "知道", emoji: "🧠", ex: "No sé la respuesta.", exZh: "我不知道答案。" },
+      { es: "conocer", en: "to know (people/places)", zh: "认识 / 去过", emoji: "🤝", ex: "¿Conoces Guanajuato?", exZh: "你去过瓜纳华托吗？" },
+      { es: "decir", en: "to say", zh: "说", emoji: "🗣️", ex: "¿Qué dijiste?", exZh: "你说什么？" },
+      { es: "dar", en: "to give", zh: "给", emoji: "🎁", ex: "Dame un momento.", exZh: "给我一点时间。" },
+      { es: "ver", en: "to see / watch", zh: "看", emoji: "👀", ex: "Vamos a ver una película.", exZh: "我们去看电影吧。" },
+      { es: "oír", en: "to hear", zh: "听到", emoji: "👂", ex: "No te oigo bien.", exZh: "我听不清你说话。" },
+      { es: "salir", en: "to go out / leave", zh: "出去 / 离开", emoji: "🚶", ex: "Salimos a las ocho.", exZh: "我们八点出发。" },
+      { es: "llegar", en: "to arrive", zh: "到达", emoji: "🏁", ex: "¿A qué hora llegas?", exZh: "你几点到？" },
+      { es: "empezar", en: "to start", zh: "开始", emoji: "▶️", ex: "La clase empieza ahorita.", exZh: "马上开始上课。" },
+      { es: "terminar", en: "to finish", zh: "结束", emoji: "⏹️", ex: "Ya terminé la tarea.", exZh: "我做完作业了。" },
+      { es: "buscar", en: "to look for", zh: "找", emoji: "🔍", ex: "Busco un departamento.", exZh: "我在找公寓。" },
+      { es: "encontrar", en: "to find", zh: "找到", emoji: "🎯", ex: "No encuentro mis llaves.", exZh: "我找不到钥匙。" },
+      { es: "esperar", en: "to wait / hope", zh: "等待 / 希望", emoji: "⏳", ex: "Espérame cinco minutos.", exZh: "等我五分钟。" },
+      { es: "ayudar", en: "to help", zh: "帮助", emoji: "🤲", ex: "¿Te ayudo con las bolsas?", exZh: "我帮你拿袋子吧？" },
+      { es: "necesitar", en: "to need", zh: "需要", emoji: "🙏", ex: "Necesito practicar más.", exZh: "我需要多练习。" },
+      { es: "gustar", en: "to like", zh: "喜欢", emoji: "💗", ex: "Me gusta la comida picante.", exZh: "我喜欢吃辣。" },
+      { es: "olvidar", en: "to forget", zh: "忘记", emoji: "🫥", ex: "Olvidé tu nombre, perdón.", exZh: "对不起，我忘了你的名字。" }
+    ]
+  },
+  // ==================== Nivel 3 · 流利 ====================
+  {
+    id: "opiniones", title: "Opiniones · 表达观点", emoji: "💬", color: "#5f3dc4", level: 3,
+    words: [
+      { es: "creo que", en: "I think that", zh: "我认为", emoji: "💭", ex: "Creo que tienes razón.", exZh: "我觉得你说得对。" },
+      { es: "me parece que", en: "it seems to me", zh: "我觉得", emoji: "🤔", ex: "Me parece que va a llover.", exZh: "我觉得要下雨了。" },
+      { es: "estar de acuerdo", en: "to agree", zh: "同意", emoji: "🤝", ex: "Estoy de acuerdo contigo.", exZh: "我同意你的看法。" },
+      { es: "en mi opinión", en: "in my opinion", zh: "依我看", emoji: "🗣️", ex: "En mi opinión, es lo mejor.", exZh: "依我看，这是最好的。" },
+      { es: "tener razón", en: "to be right", zh: "有道理 / 说得对", emoji: "✅", ex: "Tienes toda la razón.", exZh: "你说得完全对。" },
+      { es: "la ventaja", en: "advantage", zh: "优点", emoji: "➕", ex: "La ventaja es el precio.", exZh: "优点是价格。" },
+      { es: "la desventaja", en: "disadvantage", zh: "缺点", emoji: "➖", ex: "La desventaja es la distancia.", exZh: "缺点是距离远。" },
+      { es: "depende", en: "it depends", zh: "看情况", emoji: "⚖️", ex: "—¿Vas a ir? —Depende del clima.", exZh: "—你去吗？—看天气。" },
+      { es: "sin duda", en: "without a doubt", zh: "毫无疑问", emoji: "💯", ex: "Sin duda, el mejor taco de la ciudad.", exZh: "毫无疑问是全城最好吃的塔可。" },
+      { es: "quizás", en: "maybe", zh: "也许", emoji: "🎲", ex: "Quizás vaya mañana.", exZh: "也许我明天去。" },
+      { es: "es decir", en: "that is to say", zh: "也就是说", emoji: "💬", ex: "Es decir, no vienes.", exZh: "也就是说，你不来了。" },
+      { es: "por ejemplo", en: "for example", zh: "比如", emoji: "📌", ex: "Por ejemplo, el mole de Puebla.", exZh: "比如普埃布拉的莫莱酱。" },
+      { es: "sin embargo", en: "however", zh: "然而", emoji: "↩️", ex: "Es caro; sin embargo, vale la pena.", exZh: "很贵，然而值得。" },
+      { es: "al final", en: "in the end", zh: "最后", emoji: "🏁", ex: "Al final, todo salió bien.", exZh: "最后一切顺利。" }
+    ]
+  },
+  {
+    id: "cultura", title: "Cultura mexicana · 墨西哥文化", emoji: "🪅", color: "#e8590c", level: 3,
+    words: [
+      { es: "el Día de Muertos", en: "Day of the Dead", zh: "亡灵节", emoji: "💀", ex: "El Día de Muertos es el 2 de noviembre.", exZh: "亡灵节是11月2日。" },
+      { es: "la ofrenda", en: "Day of the Dead altar", zh: "亡灵节祭坛", emoji: "🕯️", ex: "Pusimos la ofrenda para los abuelos.", exZh: "我们为祖辈摆了祭坛。" },
+      { es: "la Navidad", en: "Christmas", zh: "圣诞节", emoji: "🎄", ex: "En Navidad hacemos tamales.", exZh: "圣诞节我们做塔玛雷。" },
+      { es: "la posada", en: "Christmas party (MX)", zh: "圣诞聚会（墨西哥传统）", emoji: "🎊", ex: "Hay posada en casa de mi tía.", exZh: "我阿姨家有圣诞聚会。" },
+      { es: "el mariachi", en: "mariachi band", zh: "墨西哥街头乐队", emoji: "🎺", ex: "Contratamos mariachis para la fiesta.", exZh: "我们为派对请了墨西哥乐队。" },
+      { es: "la lucha libre", en: "Mexican wrestling", zh: "墨西哥摔角", emoji: "🤼", ex: "Fuimos a la lucha libre en la Arena México.", exZh: "我们去墨西哥竞技场看了摔角。" },
+      { es: "la piñata", en: "piñata", zh: "皮纳塔（打彩罐）", emoji: "🪅", ex: "Los niños rompieron la piñata.", exZh: "孩子们打破了彩罐。" },
+      { es: "la Virgen de Guadalupe", en: "Virgin of Guadalupe", zh: "瓜达卢佩圣母", emoji: "⛪", ex: "El 12 de diciembre es día de la Virgen.", exZh: "12月12日是圣母节。" },
+      { es: "los quince años", en: "quinceañera party", zh: "十五岁成人礼", emoji: "👗", ex: "Mi prima celebró sus quince años.", exZh: "我表妹办了十五岁成人礼。" },
+      { es: "las vacaciones", en: "vacation", zh: "假期", emoji: "🏖️", ex: "En vacaciones vamos a Cancún.", exZh: "假期我们去坎昆。" },
+      { es: "el puente", en: "long weekend (MX)", zh: "连休（字面\"桥\"）", emoji: "🌉", ex: "Este fin es puente, ¡tres días!", exZh: "这周末连休三天！" },
+      { es: "la feria", en: "fair / festival", zh: "庙会 / 游乐集市", emoji: "🎡", ex: "Hay feria en el pueblo.", exZh: "镇上有庙会。" },
+      { es: "el fútbol", en: "soccer", zh: "足球", emoji: "⚽", ex: "El fútbol es pasión nacional.", exZh: "足球是全民热爱。" },
+      { es: "la selección", en: "national team", zh: "国家队", emoji: "🏆", ex: "Hoy juega la selección.", exZh: "今天国家队有比赛。" },
+      { es: "el papalote", en: "kite (MX)", zh: "风筝（源自纳瓦特语）", emoji: "🪁", ex: "Volamos papalotes en febrero.", exZh: "我们二月放风筝。" },
+      { es: "la telenovela", en: "soap opera", zh: "肥皂剧", emoji: "📺", ex: "Mi abuela ve telenovelas.", exZh: "我奶奶看肥皂剧。" }
+    ]
+  },
+  {
+    id: "jerga2", title: "Jerga avanzada · 深度俚语", emoji: "🔥", color: "#087f5b", level: 3,
+    words: [
+      { es: "¡qué oso!", en: "how embarrassing! (MX)", zh: "太尴尬了！（字面\"什么熊\"）", emoji: "🐻", ex: "Me caí en la calle, ¡qué oso!", exZh: "我在街上摔倒了，太丢人了！" },
+      { es: "el chisme", en: "gossip", zh: "八卦", emoji: "🍵", ex: "Cuéntame el chisme.", exZh: "快跟我说说八卦。" },
+      { es: "¡a huevo!", en: "hell yeah! (MX)", zh: "必须的！/ 太棒了！（粗俗）", emoji: "💪", ex: "—¿Ganamos? —¡A huevo!", exZh: "—我们赢了？—必须的！" },
+      { es: "ni modo", en: "oh well (MX)", zh: "没办法 / 认了", emoji: "🤷", ex: "Perdimos el camión, ni modo.", exZh: "错过公交了，认了吧。" },
+      { es: "echar la hueva", en: "to laze around (MX)", zh: "躺平 / 犯懒", emoji: "🛋️", ex: "Hoy solo quiero echar la hueva.", exZh: "今天我只想躺平。" },
+      { es: "la banda", en: "the crew / friends (MX)", zh: "朋友们 / 圈子", emoji: "🎸", ex: "Voy a salir con la banda.", exZh: "我要和朋友们出去。" },
+      { es: "el compa", en: "buddy (MX)", zh: "兄弟 / 哥们", emoji: "🤜", ex: "Mi compa me ayudó a mudarme.", exZh: "我哥们帮我搬了家。" },
+      { es: "estar cañón", en: "to be tough (MX)", zh: "很难 / 很猛", emoji: "🔥", ex: "El examen estuvo cañón.", exZh: "考试太难了。" },
+      { es: "el desmadre", en: "chaos / wild party (MX)", zh: "一团糟 / 狂欢", emoji: "🎉", ex: "La fiesta fue un desmadre.", exZh: "那个派对嗨翻了。" },
+      { es: "¡aguanta!", en: "hold on! (MX)", zh: "等等！/ 顶住！", emoji: "⏸️", ex: "¡Aguanta! Ya casi llego.", exZh: "等等！我马上到。" },
+      { es: "de volada", en: "right away (MX)", zh: "立刻 / 飞快地", emoji: "⚡", ex: "Voy de volada por las tortillas.", exZh: "我飞快去买玉米饼。" },
+      { es: "hacer el paro", en: "to do a favor (MX)", zh: "帮个忙", emoji: "🤝", ex: "Hazme el paro, préstame cien.", exZh: "帮个忙，借我一百。" },
+      { es: "el varo", en: "money / peso (MX)", zh: "钱（俚语）", emoji: "💵", ex: "No traigo ni un varo.", exZh: "我一分钱都没带。" },
+      { es: "chismear", en: "to gossip (MX)", zh: "嚼舌根 / 聊八卦", emoji: "🗣️", ex: "Nos quedamos chismeando toda la noche.", exZh: "我们聊八卦聊了一整晚。" },
+      { es: "¡ándale!", en: "come on! / that's it! (MX)", zh: "快点！/ 对头！", emoji: "🏃", ex: "¡Ándale, se nos hace tarde!", exZh: "快点，我们要迟到了！" },
+      { es: "chambear", en: "to work (MX slang)", zh: "干活（俚语）", emoji: "🛠️", ex: "Mañana hay que chambear.", exZh: "明天还得搬砖。" }
+    ]
+  },
+  {
+    id: "emergencias", title: "Emergencias · 紧急情况", emoji: "🚨", color: "#c92a2a", level: 3,
+    words: [
+      { es: "¡ayuda!", en: "help!", zh: "救命！", emoji: "🆘", ex: "¡Ayuda, por favor!", exZh: "请帮帮我！" },
+      { es: "la policía", en: "police", zh: "警察", emoji: "👮", ex: "Llama a la policía.", exZh: "快报警。" },
+      { es: "la ambulancia", en: "ambulance", zh: "救护车", emoji: "🚑", ex: "Necesitamos una ambulancia.", exZh: "我们需要救护车。" },
+      { es: "el incendio", en: "fire (emergency)", zh: "火灾", emoji: "🔥", ex: "Hubo un incendio en la colonia.", exZh: "街区发生了火灾。" },
+      { es: "el temblor", en: "earthquake (MX)", zh: "地震（墨西哥叫法）", emoji: "🌎", ex: "¿Sentiste el temblor?", exZh: "你感觉到地震了吗？" },
+      { es: "perdido", en: "lost", zh: "迷路的 / 丢失的", emoji: "🧭", ex: "Estoy perdido, ¿me ayuda?", exZh: "我迷路了，能帮我吗？" },
+      { es: "robar", en: "to steal / rob", zh: "偷 / 抢", emoji: "🥷", ex: "Me robaron el celular.", exZh: "我的手机被偷了。" },
+      { es: "la denuncia", en: "police report", zh: "报案", emoji: "📋", ex: "Levanté una denuncia.", exZh: "我报了案。" },
+      { es: "el consulado", en: "consulate", zh: "领事馆", emoji: "🏛️", ex: "Llama al consulado chino.", exZh: "联系中国领事馆。" },
+      { es: "la embajada", en: "embassy", zh: "大使馆", emoji: "🌐", ex: "La embajada está en Polanco.", exZh: "大使馆在波兰科区。" },
+      { es: "urgente", en: "urgent", zh: "紧急的", emoji: "🚨", ex: "Es urgente, contesta.", exZh: "很紧急，接电话。" },
+      { es: "la salida de emergencia", en: "emergency exit", zh: "安全出口", emoji: "🚪", ex: "Ubica la salida de emergencia.", exZh: "找到安全出口的位置。" },
+      { es: "tener cuidado", en: "to be careful", zh: "小心", emoji: "⚠️", ex: "Ten cuidado en la noche.", exZh: "晚上要小心。" },
+      { es: "el 911", en: "911 (emergency number)", zh: "急救电话911", emoji: "📞", ex: "Marca el nueve uno uno.", exZh: "拨打911。" }
+    ]
+  },
+  {
+    id: "fiesta", title: "Fiesta y social · 派对社交", emoji: "🎉", color: "#f59f00", level: 3,
+    words: [
+      { es: "la fiesta", en: "party", zh: "派对", emoji: "🎉", ex: "La fiesta es el sábado.", exZh: "派对在周六。" },
+      { es: "el cumpleaños", en: "birthday", zh: "生日", emoji: "🎂", ex: "¡Feliz cumpleaños!", exZh: "生日快乐！" },
+      { es: "brindar", en: "to toast", zh: "干杯 / 祝酒", emoji: "🥂", ex: "Brindemos por los amigos.", exZh: "为朋友们干杯。" },
+      { es: "¡salud!", en: "cheers!", zh: "干杯！（也用于打喷嚏后）", emoji: "🍻", ex: "—¡Salud! —¡Salud!", exZh: "—干杯！—干杯！" },
+      { es: "el regalo", en: "gift", zh: "礼物", emoji: "🎁", ex: "Te traje un regalo.", exZh: "我给你带了礼物。" },
+      { es: "invitar", en: "to invite / treat", zh: "邀请 / 请客", emoji: "💌", ex: "Yo invito los tacos.", exZh: "塔可我请。" },
+      { es: "la música", en: "music", zh: "音乐", emoji: "🎵", ex: "Sube la música.", exZh: "把音乐调大声。" },
+      { es: "la canción", en: "song", zh: "歌", emoji: "🎤", ex: "Esta canción me encanta.", exZh: "我超爱这首歌。" },
+      { es: "la botana", en: "snacks (MX)", zh: "小吃 / 下酒菜（墨西哥叫法）", emoji: "🍿", ex: "Trae botana para la fiesta.", exZh: "给派对带点小吃。" },
+      { es: "el tequila", en: "tequila", zh: "龙舌兰酒", emoji: "🍹", ex: "El tequila es de Jalisco.", exZh: "龙舌兰酒产自哈利斯科。" },
+      { es: "el mezcal", en: "mezcal", zh: "梅斯卡尔酒", emoji: "🥃", ex: "El mezcal se toma despacio.", exZh: "梅斯卡尔要慢慢品。" },
+      { es: "la michelada", en: "michelada (beer cocktail)", zh: "米切拉达（调味啤酒）", emoji: "🍺", ex: "Una michelada con clamato.", exZh: "来一杯加蛤蜊汁的米切拉达。" },
+      { es: "pasarla bien", en: "to have a good time", zh: "玩得开心", emoji: "😄", ex: "¡La pasamos súper bien!", exZh: "我们玩得特别开心！" },
+      { es: "el convivio", en: "get-together (MX)", zh: "聚会（墨西哥叫法）", emoji: "🫶", ex: "Hay convivio en la oficina.", exZh: "办公室有聚会。" }
+    ]
+  }
 ];
 
 // 拼写练习用的西语特殊字符
 const SPECIAL_CHARS = ["á", "é", "í", "ó", "ú", "ñ", "ü", "¿", "¡"];
+APP_CONFIG.specialChars = SPECIAL_CHARS;
+APP_CONFIG.sampleText = "¡Hola! ¿Qué onda?";
+APP_CONFIG.sampleText2 = "Buenos días";
+APP_CONFIG.customExample = "la playa = 海滩\nel boleto = 车票\nnadar = 游泳";
+APP_CONFIG.appSwitch = { href: "english.html", label: "🇺🇸 切换到英语版 LexiPad" };
 
-if (typeof module !== "undefined") { module.exports = { UNITS, SPECIAL_CHARS }; }
+if (typeof module !== "undefined") { module.exports = { UNITS, SPECIAL_CHARS, APP_CONFIG }; }

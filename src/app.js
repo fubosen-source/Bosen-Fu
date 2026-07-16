@@ -3,19 +3,22 @@
 
 "use strict";
 
+// APP_CONFIG 由 data 文件定义 (西语版 / 英语版共用同一引擎)
+const CFG = APP_CONFIG;
+
 // ===================== 状态与存储 =====================
 const store = {
   get(key, fallback) {
     try {
-      const raw = localStorage.getItem("palabrapad." + key);
+      const raw = localStorage.getItem(CFG.id + "." + key);
       return raw === null ? fallback : JSON.parse(raw);
     } catch { return fallback; }
   },
-  set(key, val) { localStorage.setItem("palabrapad." + key, JSON.stringify(val)); }
+  set(key, val) { localStorage.setItem(CFG.id + "." + key, JSON.stringify(val)); }
 };
 
 let settings = store.get("settings", { theme: "papel", voiceURI: "", rate: 0.9 });
-if (!settings.subLang) settings.subLang = "en";   // 字幕语言: en | zh | both
+if (!settings.subLang) settings.subLang = CFG.defaultSubLang;   // 字幕语言: en | zh | both
 
 // 单词字幕(释义)按设置语言显示
 function sub(w) {
@@ -76,19 +79,19 @@ if (synth) {
   refreshVoices();
   synth.onvoiceschanged = refreshVoices;
 }
-function spanishVoices() {
-  return voices.filter(v => v.lang && v.lang.toLowerCase().startsWith("es"));
+function targetVoices() {
+  return voices.filter(v => v.lang && v.lang.toLowerCase().startsWith(CFG.tts.prefix));
 }
 function pickVoice() {
-  const es = spanishVoices();
+  const vs = targetVoices();
   if (settings.voiceURI) {
-    const chosen = es.find(v => v.voiceURI === settings.voiceURI);
+    const chosen = vs.find(v => v.voiceURI === settings.voiceURI);
     if (chosen) return chosen;
   }
-  // 优先墨西哥西语 (macOS 上是 Paulina)
-  return es.find(v => /es[-_]mx/i.test(v.lang))
-      || es.find(v => /paulina|mexico/i.test(v.name))
-      || es[0] || null;
+  // 优先目标口音 (西语版=墨西哥 Paulina, 英语版=美音)
+  return vs.find(v => CFG.tts.preferLang.test(v.lang))
+      || vs.find(v => CFG.tts.preferName.test(v.name))
+      || vs[0] || null;
 }
 function speak(text, rateOverride) {
   if (!synth) return;
@@ -96,9 +99,14 @@ function speak(text, rateOverride) {
   const u = new SpeechSynthesisUtterance(text);
   const v = pickVoice();
   if (v) u.voice = v;
-  u.lang = v ? v.lang : "es-MX";
+  u.lang = v ? v.lang : CFG.tts.fallbackLang;
   u.rate = rateOverride || settings.rate;
   synth.speak(u);
+}
+// 词卡音标: 数据里带 ipa 字段优先, 否则西语规则转换
+function ipaOf(w) {
+  if (w.ipa) return "/" + w.ipa + "/";
+  return CFG.useEsIPA ? esIPA(w.es) : "";
 }
 
 // ===================== 工具 =====================
@@ -171,25 +179,38 @@ function unitProgress(unit) {
   return Math.round(learned / total * 100);
 }
 
+function unitCard(unit) {
+  const pct = unitProgress(unit);
+  const card = el("button", "unit-card");
+  card.innerHTML =
+    `<div class="u-emoji" style="background:${unit.color}22">${unit.emoji}</div>
+     <h3>${esc(unit.title)}</h3>
+     <div class="u-count">${unit.words.length} 个词 · 已学 ${pct}%</div>
+     <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${unit.color}"></div></div>`;
+  card.addEventListener("click", () => renderUnit(unit));
+  return card;
+}
+
 function renderHome() {
   main.innerHTML = "";
   main.append(
     el("h1", "page-title", "课程单元"),
-    el("p", "page-sub", "选择一个单元开始学习 · 共 " + allWords().length + " 个墨西哥西语词汇")
+    el("p", "page-sub", "按难度从入门到流利 · 共 " + allWords().length + " 个" + CFG.subName + "词汇")
   );
-  const grid = el("div", "unit-grid");
-  for (const unit of allUnits()) {
-    const pct = unitProgress(unit);
-    const card = el("button", "unit-card");
-    card.innerHTML =
-      `<div class="u-emoji" style="background:${unit.color}22">${unit.emoji}</div>
-       <h3>${esc(unit.title)}</h3>
-       <div class="u-count">${unit.words.length} 个词 · 已学 ${pct}%</div>
-       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${unit.color}"></div></div>`;
-    card.addEventListener("click", () => renderUnit(unit));
-    grid.append(card);
+  for (const lv of Object.keys(CFG.levels)) {
+    const units = UNITS.filter(u => (u.level || 1) === Number(lv));
+    if (!units.length) continue;
+    main.append(el("h2", "level-title", esc(CFG.levels[lv])));
+    const grid = el("div", "unit-grid");
+    for (const unit of units) grid.append(unitCard(unit));
+    main.append(grid);
   }
-  main.append(grid);
+  if (customUnits.length) {
+    main.append(el("h2", "level-title", "✏️ 我的自定义课程"));
+    const grid = el("div", "unit-grid");
+    for (const unit of customUnits) grid.append(unitCard(unit));
+    main.append(grid);
+  }
 }
 
 // ===================== 单元页 =====================
@@ -605,7 +626,7 @@ function startSpelling(unit) {
     card.innerHTML =
       `<div class="lc-word">${esc(w.es)} <span class="lc-emoji">${w.emoji}</span></div>
        <div class="lc-sub">${esc(sub(w))}</div>
-       <div class="lc-ipa">${esc(esIPA(w.es))}</div>`;
+       <div class="lc-ipa">${esc(ipaOf(w))}</div>`;
     curExBox = null;
     if (w.ex) {
       curExBox = el("div", "lc-example");
@@ -797,7 +818,7 @@ function startSpelling(unit) {
 
     const accents = el("div", "accent-row");
     accents.style.marginTop = "12px";
-    for (const ch of SPECIAL_CHARS) {
+    for (const ch of CFG.specialChars) {
       const k = el("button", "accent-key", ch);
       k.addEventListener("mousedown", e => e.preventDefault());
       k.addEventListener("click", () => {
@@ -858,7 +879,7 @@ function startSpelling(unit) {
     });
     writeBtn.addEventListener("click", () => { mode = "write"; show(); });
 
-    area.append(el("p", "hint", "英文键盘直接打: a=á n=ñ u=ü，重音自动补上，标点不用打 · 打错闪红自动忽略 · 描红关掉就是默写"));
+    area.append(el("p", "hint", CFG.typeHint));
     input.focus();
   }
 
@@ -924,14 +945,14 @@ function startTypeDrill(unit) {
 
     const input = el("input", "spell-input");
     input.type = "text";
-    input.placeholder = st.key === "recall" ? "凭记忆输入… (a=á n=ñ, 标点不用打)" : "在这里打字… (a=á n=ñ, 标点不用打)";
+    input.placeholder = (st.key === "recall" ? "凭记忆输入… (" : "在这里打字… (") + CFG.kbdTip + ")";
     input.autocapitalize = "off";
     input.autocomplete = "off";
     input.spellcheck = false;
     body.append(input);
 
     const accents = el("div", "accent-row");
-    for (const ch of SPECIAL_CHARS) {
+    for (const ch of CFG.specialChars) {
       const k = el("button", "accent-key", ch);
       k.addEventListener("click", () => {
         const pos = input.selectionStart ?? input.value.length;
@@ -1285,7 +1306,7 @@ function renderCustom() {
   const nameInput = el("input");
   nameInput.placeholder = "课程名称，例如: 我的旅行词汇";
   const ta = el("textarea");
-  ta.placeholder = "cada línea 一行一个词，格式:\n西语 = 中文\n\n例如:\nla playa = 海滩\nel boleto = 车票\nnadar = 游泳";
+  ta.placeholder = "一行一个词，格式:\n" + CFG.langName + " = 中文\n\n例如:\n" + (CFG.customExample || "la playa = 海滩\nel boleto = 车票\nnadar = 游泳");
   form.append(nameInput, ta,
     el("p", "form-hint", "格式: <b>西语 = 中文</b>（也可以用 <b>,</b> 或 <b>Tab</b> 分隔）。每行一个词。"));
   const save = el("button", "ctrl-btn primary", "＋ 创建课程");
@@ -1394,16 +1415,16 @@ function renderSettings() {
   main.append(gSub);
 
   // 语音
-  const gVoice = el("div", "settings-group", "<h3>🗣️ 西语发音</h3>");
-  const es = spanishVoices();
+  const gVoice = el("div", "settings-group", `<h3>🗣️ ${CFG.langName}发音</h3>`);
+  const es = targetVoices();
   if (es.length === 0) {
     gVoice.append(el("p", "form-hint",
-      "未检测到西班牙语语音。macOS 上请到「系统设置 → 辅助功能 → 朗读内容 → 系统嗓音 → 管理嗓音」下载 <b>Paulina (西班牙语·墨西哥)</b>，即可获得地道的墨西哥口音。"));
+      CFG.voiceMissingHint));
   } else {
     const sel = el("select");
     const current = pickVoice();
     for (const v of es) {
-      const opt = el("option", "", `${esc(v.name)} (${esc(v.lang)})${/es[-_]mx/i.test(v.lang) ? " 🇲🇽" : ""}`);
+      const opt = el("option", "", `${esc(v.name)} (${esc(v.lang)})${CFG.tts.preferLang.test(v.lang) ? " ⭐" : ""}`);
       opt.value = v.voiceURI;
       if (current && v.voiceURI === current.voiceURI) opt.selected = true;
       sel.append(opt);
@@ -1411,10 +1432,10 @@ function renderSettings() {
     sel.addEventListener("change", () => {
       settings.voiceURI = sel.value;
       store.set("settings", settings);
-      speak("¡Hola! ¿Qué onda?");
+      speak(CFG.sampleText);
     });
     gVoice.append(sel);
-    gVoice.append(el("p", "form-hint", "推荐选择带 🇲🇽 标记的 es-MX 嗓音（如 Paulina），这是墨西哥口音。"));
+    gVoice.append(el("p", "form-hint", CFG.voiceTip));
   }
   const rateRow = el("div", "range-row");
   const rate = el("input");
@@ -1454,5 +1475,14 @@ function renderSettings() {
 
 // ===================== 启动 =====================
 document.body.dataset.theme = settings.theme;
+document.title = CFG.name + " · " + CFG.subName;
+document.querySelector(".logo-text strong").textContent = CFG.name;
+document.querySelector(".logo-text small").textContent = CFG.subName;
+if (CFG.logoEmoji) document.querySelector(".logo-emoji").textContent = CFG.logoEmoji;
+if (CFG.appSwitch) {
+  const a = el("a", "app-switch", esc(CFG.appSwitch.label));
+  a.href = CFG.appSwitch.href;
+  document.querySelector(".sidebar-footer").append(a);
+}
 updateSidebarStats();
 renderHome();
